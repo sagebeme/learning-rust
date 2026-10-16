@@ -5,6 +5,7 @@ use axum::http::StatusCode;
 use common::{call, state};
 use serde_json::json;
 
+// /health is given (in app.rs), so this test passes from the start.
 #[tokio::test]
 async fn health_is_ok() {
     let answer = call(routes(state()), "GET", "/health", None, None).await;

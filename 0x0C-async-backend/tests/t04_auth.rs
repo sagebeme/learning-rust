@@ -57,6 +57,7 @@ async fn the_server_requires_the_token() {
     assert_eq!(with.status, StatusCode::OK);
 }
 
+// app.rs lets /health through before checking the token, so this passes from the start.
 #[tokio::test]
 async fn health_stays_open_for_monitoring() {
     let answer = call(app(state()), "GET", "/health", None, None).await;

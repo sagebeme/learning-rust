@@ -48,7 +48,7 @@ async fn seed(pool: &PgPool) {
 
 // ---- task 0 ----
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t00_inserts_an_employee(pool: PgPool) {
     insert_employee(
         &pool,
@@ -59,7 +59,7 @@ async fn t00_inserts_an_employee(pool: PgPool) {
     assert_eq!(department_of(&pool, 48213).await, "Ramp");
 }
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t00_a_taken_staff_number_is_a_duplicate(pool: PgPool) {
     seed(&pool).await;
     let result = insert_employee(
@@ -73,7 +73,7 @@ async fn t00_a_taken_staff_number_is_a_duplicate(pool: PgPool) {
     );
 }
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t00_an_unknown_station_is_reported(pool: PgPool) {
     let result = insert_employee(&pool, &NewEmployee::new(1, "Kip Ruto", "LHR", "Cargo")).await;
     assert!(
@@ -82,7 +82,7 @@ async fn t00_an_unknown_station_is_reported(pool: PgPool) {
     );
 }
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t00_the_database_refuses_a_blank_name(pool: PgPool) {
     let result = insert_employee(&pool, &NewEmployee::new(1, "   ", "NBO", "Cargo")).await;
     assert!(matches!(result, Err(DbError::Sqlx(_))), "{result:?}");
@@ -90,7 +90,7 @@ async fn t00_the_database_refuses_a_blank_name(pool: PgPool) {
 
 // ---- task 1 ----
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t01_records_and_renews_a_holding(pool: PgPool) {
     seed(&pool).await;
     assert!(
@@ -110,7 +110,7 @@ async fn t01_records_and_renews_a_holding(pool: PgPool) {
     assert_eq!(rows[0].valid_until, d(2028, 2, 1));
 }
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t01_an_older_record_never_replaces_a_newer_one(pool: PgPool) {
     seed(&pool).await;
     record_holding(&pool, 48213, "DG", d(2026, 2, 1), d(2028, 2, 1))
@@ -127,7 +127,7 @@ async fn t01_an_older_record_never_replaces_a_newer_one(pool: PgPool) {
     assert_eq!(rows[0].valid_until, d(2028, 2, 1));
 }
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t01_a_holding_for_an_unknown_employee_is_not_found(pool: PgPool) {
     let result = record_holding(&pool, 99999, "DG", d(2026, 2, 1), d(2028, 2, 1)).await;
     assert!(
@@ -138,7 +138,7 @@ async fn t01_a_holding_for_an_unknown_employee_is_not_found(pool: PgPool) {
 
 // ---- task 2 ----
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t02_lists_what_expires_in_order(pool: PgPool) {
     seed(&pool).await;
     record_holding(&pool, 48213, "FIRE", d(2025, 11, 1), d(2026, 11, 1))
@@ -177,7 +177,7 @@ async fn t02_lists_what_expires_in_order(pool: PgPool) {
     assert_eq!(rows[0].station_code, "NBO");
 }
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t02_both_ends_of_the_range_are_included_and_a_station_filter_works(pool: PgPool) {
     seed(&pool).await;
     record_holding(&pool, 48213, "FIRE", d(2025, 10, 16), d(2026, 10, 16))
@@ -200,7 +200,7 @@ async fn t02_both_ends_of_the_range_are_included_and_a_station_filter_works(pool
 
 // ---- task 3 ----
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t03_transfers_and_records_the_move(pool: PgPool) {
     seed(&pool).await;
     let from = transfer_employee(&pool, 48213, "Cargo", d(2026, 10, 16))
@@ -211,7 +211,7 @@ async fn t03_transfers_and_records_the_move(pool: PgPool) {
     assert_eq!(count(&pool, "transfers").await, 1);
 }
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t03_an_unknown_employee_is_not_found(pool: PgPool) {
     let result = transfer_employee(&pool, 99999, "Cargo", d(2026, 10, 16)).await;
     assert!(
@@ -220,7 +220,7 @@ async fn t03_an_unknown_employee_is_not_found(pool: PgPool) {
     );
 }
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t03_a_failed_audit_row_undoes_the_department_change(pool: PgPool) {
     seed(&pool).await;
     // The transfers table refuses a blank department, so the last step fails...
@@ -233,7 +233,7 @@ async fn t03_a_failed_audit_row_undoes_the_department_change(pool: PgPool) {
 
 // ---- task 100 ----
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t100_imports_a_whole_roster(pool: PgPool) {
     let roster = [
         NewEmployee::new(1, "Amina Wanjiru", "NBO", "Ramp"),
@@ -243,7 +243,7 @@ async fn t100_imports_a_whole_roster(pool: PgPool) {
     assert_eq!(count(&pool, "employees").await, 2);
 }
 
-#[sqlx::test(migrations = "migrations")]
+#[sqlx::test(migrations = "./migrations")]
 async fn t100_one_bad_row_saves_nothing_and_says_which(pool: PgPool) {
     let roster = [
         NewEmployee::new(1, "Amina Wanjiru", "NBO", "Ramp"),
