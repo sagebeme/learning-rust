@@ -1,0 +1,83 @@
+[
+  {
+    "name": "1. cargo handler: met, expiring through an equivalent, and a lapsed forklift licence",
+    "today": "2026-10-16",
+    "department": "Cargo",
+    "role": "Handler",
+    "holdings": [
+      { "code": "AIRSIDE", "completed_on": "2025-03-10", "last_used_on": null },
+      { "code": "DG-ICAO", "completed_on": "2024-11-01", "last_used_on": null },
+      { "code": "FORKLIFT", "completed_on": "2026-01-05", "last_used_on": "2026-06-01" }
+    ],
+    "expected": [
+      { "code": "AIRSIDE", "state": { "state": "met", "valid_until": "2027-03-10" }, "satisfied_by": "AIRSIDE" },
+      { "code": "DG", "state": { "state": "expiring_soon", "valid_until": "2026-11-01", "days_left": 16 }, "satisfied_by": "DG-ICAO" },
+      { "code": "FORKLIFT", "state": { "state": "lapsed", "last_used_on": "2026-06-01" }, "satisfied_by": "FORKLIFT" }
+    ],
+    "ready": false
+  },
+  {
+    "name": "2. cargo handler: DG in grace, but airside safety was never done",
+    "today": "2026-10-16",
+    "department": "Cargo",
+    "role": "Handler",
+    "holdings": [
+      { "code": "DG", "completed_on": "2024-09-20", "last_used_on": null }
+    ],
+    "expected": [
+      { "code": "AIRSIDE", "state": { "state": "missing" }, "satisfied_by": null },
+      { "code": "DG", "state": { "state": "prerequisite_missing", "missing": ["AIRSIDE"] }, "satisfied_by": "DG" },
+      { "code": "FORKLIFT", "state": { "state": "missing" }, "satisfied_by": null }
+    ],
+    "ready": false
+  },
+  {
+    "name": "3. ramp agent: airside safety on its last day, fire safety expired",
+    "today": "2026-10-16",
+    "department": "Ramp",
+    "role": "Agent",
+    "holdings": [
+      { "code": "AIRSIDE", "completed_on": "2024-10-16", "last_used_on": null },
+      { "code": "FIRE", "completed_on": "2025-09-01", "last_used_on": null }
+    ],
+    "expected": [
+      { "code": "AIRSIDE", "state": { "state": "expiring_soon", "valid_until": "2026-10-16", "days_left": 0 }, "satisfied_by": "AIRSIDE" },
+      { "code": "FIRE", "state": { "state": "expired", "valid_until": "2026-09-01" }, "satisfied_by": "FIRE" }
+    ],
+    "ready": false
+  },
+  {
+    "name": "4. cargo handler: ready, using the better of two DG holdings",
+    "today": "2026-10-16",
+    "department": "Cargo",
+    "role": "Handler",
+    "holdings": [
+      { "code": "DG", "completed_on": "2023-01-10", "last_used_on": null },
+      { "code": "DG-ICAO", "completed_on": "2026-02-01", "last_used_on": null },
+      { "code": "AIRSIDE", "completed_on": "2026-01-01", "last_used_on": null },
+      { "code": "FORKLIFT", "completed_on": "2026-09-01", "last_used_on": null }
+    ],
+    "expected": [
+      { "code": "AIRSIDE", "state": { "state": "met", "valid_until": "2028-01-01" }, "satisfied_by": "AIRSIDE" },
+      { "code": "DG", "state": { "state": "met", "valid_until": "2028-02-01" }, "satisfied_by": "DG-ICAO" },
+      { "code": "FORKLIFT", "state": { "state": "met", "valid_until": "2027-09-01" }, "satisfied_by": "FORKLIFT" }
+    ],
+    "ready": true
+  },
+  {
+    "name": "5. cargo handler: forklift licence in grace, no DG at all",
+    "today": "2026-10-16",
+    "department": "Cargo",
+    "role": "Handler",
+    "holdings": [
+      { "code": "AIRSIDE", "completed_on": "2025-06-01", "last_used_on": null },
+      { "code": "FORKLIFT", "completed_on": "2025-10-10", "last_used_on": "2025-11-01" }
+    ],
+    "expected": [
+      { "code": "AIRSIDE", "state": { "state": "met", "valid_until": "2027-06-01" }, "satisfied_by": "AIRSIDE" },
+      { "code": "DG", "state": { "state": "missing" }, "satisfied_by": null },
+      { "code": "FORKLIFT", "state": { "state": "in_grace", "valid_until": "2026-10-10", "days_overdue": 6 }, "satisfied_by": "FORKLIFT" }
+    ],
+    "ready": false
+  }
+]
