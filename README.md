@@ -15,11 +15,9 @@ The format is borrowed from ALX's low-level programming track: numbered projects
 
 ## Setup
 
-1. Install Rust with [rustup](https://rustup.rs). On Windows, the GNU toolchain works without installing Visual Studio:
-
-   ```bash
-   rustup-init --default-host x86_64-pc-windows-gnu
-   ```
+1. Install Rust with [rustup](https://rustup.rs).
+   - **macOS and Linux:** the default install is all you need.
+   - **Windows:** the default (MSVC) toolchain needs Microsoft's C++ build tools. Install "Visual Studio Build Tools" with the **Desktop development with C++** workload, then run `rustup-init` with its defaults. Alternatively, use the GNU toolchain (`rustup-init --default-host x86_64-pc-windows-gnu`) together with a full MinGW-w64, such as WinLibs (`winget install BrechtSanders.WinLibs.POSIX.UCRT`), on your `PATH`. Rust's GNU toolchain alone is missing `dlltool`, which many libraries need from week 3 on.
 
 2. Clone this repo and run the tests once. The first run downloads the exact Rust version pinned in `rust-toolchain.toml`:
 
@@ -32,6 +30,8 @@ The format is borrowed from ALX's low-level programming track: numbered projects
    Every test fails at first, with "not yet implemented". That's expected: you haven't written anything yet.
 
 3. Install an editor extension: **rust-analyzer** for VS Code, or RustRover. It shows compiler errors as you type.
+
+4. **Week 6 only:** install Docker (or Postgres itself) for the database project. Its README has the one command you need.
 
 ## How a project works
 
@@ -59,15 +59,19 @@ A task is done when its tests pass **and** clippy prints nothing. CI runs the sa
 | Week | Projects | What you'll learn |
 | --- | --- | --- |
 | 1 | [0x00 hello-cargo](0x00-hello-cargo) · [0x01 values-control](0x01-values-control) · [0x02 functions-modules](0x02-functions-modules) · **[the Tauri spike](docs/week-1-tauri.md)** | Tooling, reading compiler errors, types and overflow, control flow, modules, unit tests. Setting up Tauri and calling your first Rust command from the app |
-| 2 | 0x03 ownership-memory · 0x04 structs-enums-match | Stack and heap, moves, borrowing, slices, `String` vs `&str`, `Drop`. Modelling qualifications |
-| 3 | 0x05 errors-files-cli · 0x06 collections-iterators · 0x07 smart-pointers-lifetimes | `Result` and `?`, error types, files, safe writes. Maps, iterators, a hand-built hash map. `Box`, `Rc`, `Arc`, lifetimes |
-| 4 | 0x08 traits-dates-testing · **0x09 rules-engine** | Traits, generics, dates, property tests. A small working qualification engine: the end of the foundations |
-| 5 | 0x0A tauri-core | The engine inside a Tauri app: commands, shared state, events, errors the screens can show, permissions, desktop and mobile builds |
-| 6 | 0x0B databases | SQL design, Postgres with sqlx, migrations, transactions, SQLite on devices |
-| 7 | 0x0C async-backend · 0x0D jobs-alerts | Async Rust, an Axum web service, the daily expiry job, email, SMS, WhatsApp and push alerts |
-| 8 | 0x0E architecture-and-clients | Architecture decisions, reviewing real pull requests, presenting to a client |
+| 2 | [0x03 ownership-memory](0x03-ownership-memory) · [0x04 structs-enums-match](0x04-structs-enums-match) | Stack and heap, moves, borrowing, slices, `String` vs `&str`. Modelling qualifications so bad states can't exist |
+| 3 | [0x05 errors-files-cli](0x05-errors-files-cli) · [0x06 collections-iterators](0x06-collections-iterators) · [0x07 smart-pointers-lifetimes](0x07-smart-pointers-lifetimes) | `Result` and `?`, error types, files, power-cut-safe saves. Maps, iterators, your ALX hash table rebuilt. `Box`, `Rc`, `Arc`, threads, lifetimes |
+| 4 | [0x08 traits-dates-testing](0x08-traits-dates-testing) · **[0x09 rules-engine](0x09-rules-engine)** | Traits, generics, dates, property tests. A small working qualification engine with shared test cases: the end of the foundations |
+| 5 | [0x0A tauri-core](0x0A-tauri-core) | The engine inside a Tauri app: commands, shared state, errors the screens can show, input checks, permissions, events |
+| 6 | [0x0B databases](0x0B-databases) | Schema design, Postgres with sqlx, mapping database errors, upserts, transactions |
+| 7 | [0x0C async-backend](0x0C-async-backend) · [0x0D jobs-alerts](0x0D-jobs-alerts) | Async Rust, an Axum web service with auth. The daily expiry job: planning alerts, sending once, retries, scheduling in Nairobi time |
+| 8 | [0x0E architecture-clients](0x0E-architecture-clients) | Architecture rules as tests, decision records, five full code reviews, a client demo |
 
-Weeks 2–8 are added to this repo ahead of when you need them.
+## Guides you'll come back to
+
+- [How to review a pull request](docs/code-review-guide.md)
+- [Client meetings: turning requirements into rules](docs/client-meetings.md)
+- [Decision records](docs/decisions/) and the [architecture page template](docs/templates/architecture.md)
 
 ## Each week, three kinds of work
 
