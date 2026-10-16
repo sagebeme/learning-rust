@@ -2,6 +2,17 @@
 
 **Week 4** · Behaviour shared across types, calendar maths that matches what people mean, and tests that try hundreds of cases for you.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| Week 3 done | `cargo test -p smart-pointers-lifetimes` passes | Finish [0x05](../0x05-errors-files-cli)–[0x07](../0x07-smart-pointers-lifetimes) first |
+| To know what an interface is in another language (helpful, not required) | You've used one in TypeScript, Java or similar | Not needed: the Book's [Traits](https://doc.rust-lang.org/book/ch10-02-traits.html) section starts from zero |
+
+## The story so far
+
+You can model, load and organise TWA's data. Now its most error-prone part: dates. "Valid for 24 months" means different things to different regulators, and Amina's certificates must expire on exactly the right day, whatever rule each one follows. Next week the engine is built on this.
+
 ## What you'll be able to do
 
 - Define a trait and implement it for several types; use them through generics or trait objects
@@ -10,10 +21,12 @@
 
 ## Read first
 
-- The Book: **Generic Types, Traits, and Lifetimes** (generics and traits sections), **Using Trait Objects to Abstract over Shared Behavior**
-- `chrono` docs: `NaiveDate`, `Months`, `Days`
-- The `proptest` book: "Getting started"
-- Rustlings: `generics`, `traits`
+- The Book: [Generic Types, Traits, and Lifetimes](https://doc.rust-lang.org/book/ch10-00-generics.html) (the generics and traits sections), and [Using Trait Objects to Abstract over Shared Behavior](https://doc.rust-lang.org/book/ch18-02-trait-objects.html)
+- `chrono` docs: [`NaiveDate`](https://docs.rs/chrono/latest/chrono/naive/struct.NaiveDate.html), [`Months`](https://docs.rs/chrono/latest/chrono/struct.Months.html), [`Days`](https://docs.rs/chrono/latest/chrono/naive/struct.Days.html)
+- [The proptest book](https://proptest-rs.github.io/proptest/): "Getting started"
+- [Rustlings](https://rustlings.rust-lang.org/): `generics`, `traits`
+
+**Go deeper:** [`std::fmt::Display`](https://doc.rust-lang.org/std/fmt/trait.Display.html), and *Rust by Example* on [traits](https://doc.rust-lang.org/rust-by-example/trait.html) and [`dyn`](https://doc.rust-lang.org/rust-by-example/trait/dyn.html).
 
 ## Why dates are where engines go wrong
 

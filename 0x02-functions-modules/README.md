@@ -2,6 +2,17 @@
 
 **Week 1** · Small functions, private helpers, modules and your own unit tests.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| 0x01 done | `cargo test -p values-control` passes | Go back to [0x01](../0x01-values-control) |
+| To know what a function and a test are | You could write a function that adds two numbers, and say how you'd check it | The Book's [Functions](https://doc.rust-lang.org/book/ch03-03-how-functions-work.html) section |
+
+## The story so far
+
+Amina's licences have a countdown. Now the code is growing, so it needs organising: small functions with names, private helpers nobody else can call, and your own tests next to them. And her pay, and how recently she used each skill, need working out exactly.
+
 ## What you'll be able to do
 
 - Split work into small functions, some public and some private
@@ -10,9 +21,11 @@
 
 ## Read first
 
-- The Book: **Managing Growing Projects with Packages, Crates, and Modules**, and **Writing Automated Tests** (sections 1 and 3)
-- *Rust by Example*: **Modules**, **Testing → Unit testing**
-- Rustlings: `modules`, `tests`
+- The Book: [Managing Growing Projects with Packages, Crates, and Modules](https://doc.rust-lang.org/book/ch07-00-managing-growing-projects-with-packages-crates-and-modules.html), and [Writing Automated Tests](https://doc.rust-lang.org/book/ch11-00-testing.html) (sections 1 and 3)
+- *Rust by Example*: [Modules](https://doc.rust-lang.org/rust-by-example/mod.html), [Unit testing](https://doc.rust-lang.org/rust-by-example/testing/unit_testing.html)
+- [Rustlings](https://rustlings.rust-lang.org/): `modules`, `tests`
+
+**Go deeper:** the Rust Reference on [visibility and privacy](https://doc.rust-lang.org/reference/visibility-and-privacy.html), and [`From`](https://doc.rust-lang.org/std/convert/trait.From.html), the trait behind `i64::from`.
 
 ## Tasks
 

@@ -4,6 +4,17 @@
 
 ALX's linked lists, revisited, and why Rust code usually doesn't build them. By the end of this project you've covered everything Rust does with memory that the TWA work needs.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| 0x06 done | `cargo test -p collections-iterators` passes | Go back to [0x06](../0x06-collections-iterators) |
+| Ownership and borrowing, solidly | You can explain why a function returning `&str` needs its input to live long enough | Re-read the Book's [References and Borrowing](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html) |
+
+## The story so far
+
+You can handle 800 records. Some data doesn't fit the one-owner rule, though: a rule tree like "airside safety, and dangerous goods or its equivalent", a log several parts of the app write to, a nightly count across four stations at once, and the web of prerequisites behind Amina's forklift licence.
+
 ## What you'll be able to do
 
 - Use `Box` for recursive data, `Rc`/`RefCell` for shared ownership in one thread, `Arc`/`Mutex` across threads
@@ -12,10 +23,12 @@ ALX's linked lists, revisited, and why Rust code usually doesn't build them. By 
 
 ## Read first
 
-- The Book: **Smart Pointers** (`Box`, `Rc`, `RefCell`), **Fearless Concurrency** (threads, `Mutex`, `Arc`), and **Validating References with Lifetimes**
-- *Rust by Example*: **Box, stack and heap**, **Rc**, **Arc**, **Lifetimes**
-- *Learning Rust With Entirely Too Many Linked Lists* (free online), chapter 1 only. It shows why linked lists are hard in Rust, and why you rarely need one.
-- Rustlings: `smart_pointers`, `lifetimes`, `threads`
+- The Book: [Smart Pointers](https://doc.rust-lang.org/book/ch15-00-smart-pointers.html) (`Box`, `Rc`, `RefCell`), [Fearless Concurrency](https://doc.rust-lang.org/book/ch16-00-concurrency.html) (threads, `Mutex`, `Arc`), and [Validating References with Lifetimes](https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html)
+- *Rust by Example*: [Box, stack and heap](https://doc.rust-lang.org/rust-by-example/std/box.html), [Rc](https://doc.rust-lang.org/rust-by-example/std/rc.html), [Arc](https://doc.rust-lang.org/rust-by-example/std/arc.html), [Lifetimes](https://doc.rust-lang.org/rust-by-example/scope/lifetime.html)
+- [Learning Rust With Entirely Too Many Linked Lists](https://rust-unofficial.github.io/too-many-lists/), chapter 1 only. It shows why linked lists are hard in Rust, and why you rarely need one.
+- [Rustlings](https://rustlings.rust-lang.org/): `smart_pointers`, `lifetimes`, `threads`
+
+**Go deeper:** [Rust Atomics and Locks](https://marabos.nl/atomics/) by Mara Bos, chapters 1 and 2 (free online), and [`std::thread::scope`](https://doc.rust-lang.org/std/thread/fn.scope.html) for threads that borrow instead of needing `Arc`.
 
 ## Which one, when
 

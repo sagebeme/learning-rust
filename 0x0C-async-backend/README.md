@@ -2,6 +2,20 @@
 
 **Week 7** · The TWA server: async Rust, an Axum web service, errors as HTTP responses, and authentication.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| 0x0B done | `cargo test -p databases` passes against your Postgres | Go back to [0x0B](../0x0B-databases) |
+| To know what HTTP is: methods, URLs, status codes, JSON bodies | You can say what `POST /employees` returning `201` means | MDN's [overview of HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview) (20 minutes) |
+| `curl`, to call the server by hand | `curl --version` prints a version | Already on Windows 10+, macOS and most Linux; otherwise [curl.se/download](https://curl.se/download.html) |
+
+## The story so far
+
+Amina's records live in Postgres, and the app can show her gap report. But HR doesn't use the app: they ask the *server*, from the admin web app, "can Amina transfer to Cargo on Monday?". This week you build that server, and it answers with your engine.
+
+This project uses the engine too (task 3). See "Using your own engine" in [0x0A's README](../0x0A-tauri-core/README.md#using-your-own-engine) to switch it to yours.
+
 ## What you'll be able to do
 
 - Explain what `async` and `.await` do, and avoid the two mistakes that freeze an async server
@@ -11,9 +25,11 @@
 
 ## Read first
 
-- The Book: **Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams**
-- The Tokio tutorial: **Hello Tokio**, **Spawning**, **Shared state**
-- Axum docs: the crate overview, **Extractors**, **Error handling**, **Middleware** (`from_fn`)
+- The Book: [Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams](https://doc.rust-lang.org/book/ch17-00-async-await.html)
+- The [Tokio tutorial](https://tokio.rs/tokio/tutorial): Hello Tokio, Spawning, Shared state
+- The [Axum docs](https://docs.rs/axum): the crate overview, and its sections on extractors, error handling and middleware (`from_fn`)
+
+**Go deeper:** [Asynchronous Programming in Rust](https://rust-lang.github.io/async-book/) (how futures work underneath), Tokio's guide to [testing with paused time](https://docs.rs/tokio/latest/tokio/time/fn.pause.html), and OWASP's [REST security cheat sheet](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html).
 
 ## Async in plain words
 
@@ -57,7 +73,9 @@ The state uses a `std::sync::RwLock`. That's fine *because no handler awaits whi
 
 ### 3. The transfer check (`t03_transfers.rs`)
 
-`POST /transfers/check` takes a staff number, department and role, and answers whether they're ready and which codes are missing. This is a simplified gap check that only looks at codes held. In the real server, this handler calls your 0x09 engine with the employee's holdings from the 0x0B database.
+`POST /transfers/check` takes a staff number, department, role and the date the transfer would start, and returns the engine's full gap report. The server keeps each person's holdings in its state (in production they'd come from the 0x0B database). Copy them out, release the lock, and call `gap_check`. The date comes from the request because a transfer is planned for a specific day, and because the server should never quietly decide what "today" is.
+
+The first test asks the story's question for 19 October 2026. The answer comes back as JSON: airside safety met, dangerous goods expiring in 13 days through her external certificate, forklift licence missing.
 
 ### 4. Authentication (`t04_auth.rs`)
 
@@ -80,7 +98,7 @@ The client asks: *"What happens if 300 staff at JKIA all open the app at 6 a.m. 
 ## Checkpoint
 
 - `cargo test -p async-backend` passes and clippy is clean
-- Run the server for real: add a `main.rs` that starts it with `tokio::net::TcpListener` and `axum::serve`, then call `/health` from your browser and `/employees/1` from `curl` with and without the token
+- Run the server for real with `cargo run -p async-backend` (`src/main.rs` is given, and shows the `curl` commands). Ask it Amina's transfer question, then ask it again without the token and read the 401
 
 ## When you're stuck
 

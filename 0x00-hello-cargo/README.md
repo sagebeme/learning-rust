@@ -2,6 +2,18 @@
 
 **Week 1** · Tooling, your first functions, and a first look at memory.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| To know how to write a small program in any language | You could write FizzBuzz in some language | See "What you need to know already" in the [main README](../README.md#what-you-need-to-know-already) |
+| Rust | `cargo --version` prints a version | Install from [rustup.rs](https://rustup.rs/); Windows users also read the [setup table](../README.md#what-you-need-installed) |
+| An editor with rust-analyzer | Red underlines appear when you type a mistake | [VS Code](https://code.visualstudio.com/) + [rust-analyzer](https://rust-analyzer.github.io/) |
+
+## The story so far
+
+Nothing yet: this is day one. Amina's transfer question will need a rules engine, an app, a database and a server. They're all built with the same tools, and this project sets them up.
+
 ## What you'll be able to do
 
 - Build and test a Rust project with Cargo
@@ -10,9 +22,11 @@
 
 ## Read first
 
-- *The Rust Programming Language* (the "Book"): **Getting Started** and **Programming a Guessing Game**
-- *Rust by Example*: **Hello World** and **Formatted print**
-- Rustlings: `intro`, `variables`
+- *The Rust Programming Language* (the "Book"): [Getting Started](https://doc.rust-lang.org/book/ch01-00-getting-started.html) and [Programming a Guessing Game](https://doc.rust-lang.org/book/ch02-00-guessing-game-tutorial.html)
+- *Rust by Example*: [Hello World](https://doc.rust-lang.org/rust-by-example/hello.html) and [Formatted print](https://doc.rust-lang.org/rust-by-example/hello/print.html)
+- [Rustlings](https://rustlings.rust-lang.org/): the `intro` and `variables` exercises
+
+**Go deeper:** the [Cargo Book's first steps](https://doc.rust-lang.org/cargo/getting-started/first-steps.html), [`std::mem::size_of`](https://doc.rust-lang.org/std/mem/fn.size_of.html), and the [compiler error index](https://doc.rust-lang.org/error_codes/error-index.html).
 
 ## How this project works
 

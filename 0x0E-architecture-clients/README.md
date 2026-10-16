@@ -4,6 +4,19 @@
 
 You now know enough Rust to build every part of TWA. This last week is about the decisions around the code, the ones that are expensive to change in month three.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| Weeks 5–7 done | `cargo test -p tauri-core -p async-backend -p jobs-alerts` passes, and `cargo test -p databases` against your Postgres | Go back to the first project that fails |
+| Your week 1 decision record | `docs/decisions/0001-client-app.md` exists in your notes | Write it now, from [the week 1 guide](../docs/week-1-tauri.md) and [the template](../docs/decisions/) |
+| A mentor to play the client | Someone has agreed to 30 minutes, with the worksheet in hand | Ask your lead; a colleague reading [client-meetings.md](../docs/client-meetings.md) first works too |
+| A GitHub account, for reading real PRs | You can open [github.com/storytold](https://github.com/storytold) | [Sign up](https://github.com/signup); the course itself only needs Git |
+
+## The story so far
+
+Amina's question now gets answered everywhere: in a test (0x09), in the app (0x0A), from the database (0x0B), by the server (0x0C), and at 06:00 by WhatsApp (0x0D). Every piece uses the same engine. This week you make sure it stays that way, check other people's changes to it, and show it to the client.
+
 ## What you'll be able to do
 
 - Describe TWA's architecture on one page, and turn its key rules into tests that run in CI
@@ -15,7 +28,9 @@ You now know enough Rust to build every part of TWA. This last week is about the
 
 - Your own week 1 decision record (`docs/decisions/0001-client-app.md`). Does it still hold?
 - [docs/code-review-guide.md](../docs/code-review-guide.md) and [docs/client-meetings.md](../docs/client-meetings.md)
-- storytold's `craft-libs` README, and the "Backend architecture" section of `artcraft-services`: real Rust workspaces, organised the way this week describes
+- storytold's [`craft-libs` README](https://github.com/storytold/craft-libs), and the "Backend architecture" section of [`artcraft-services`](https://github.com/storytold/artcraft-services): real Rust workspaces, organised the way this week describes
+
+**Go deeper:** Google's [engineering practices guide to code review](https://google.github.io/eng-practices/review/), Michael Nygard's [Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions), and Kenya's [Office of the Data Protection Commissioner](https://www.odpc.go.ke/) for decision 0002.
 
 ## Part 1: architecture you can test (code)
 
@@ -40,7 +55,7 @@ A small reader for `Cargo.toml` that finds the package name and its internal dep
 
 ### The test that uses both
 
-`tests/this_repo.rs` runs your two functions over **this** workspace and checks the rule for this course: no project depends on another. When TWA's workspace exists, copy the test there with TWA's rules.
+`tests/this_repo.rs` runs your two functions over **this** workspace and checks the course's own rules: the weeks 1–4 projects depend on nothing internal, and the weeks 5–7 projects may depend on the engine (the reference one or yours), and on nothing else. That's the TWA table above in miniature. When TWA's workspace exists, copy the test there with TWA's rules.
 
 ## Part 2: write the architecture down
 
@@ -60,8 +75,8 @@ Open [`review/README.md`](review/README.md): five realistic PRs, one per area of
 
 Use [docs/client-meetings.md](../docs/client-meetings.md) to prepare and run a 30-minute demo of your mini-TWA to your mentor, playing the training manager:
 
-1. Show a transfer gap check (0x09) for a fake staff member, and explain each line in plain words.
-2. Walk through what happens at 06:00 every day (0x0D): who gets told, and how.
+1. Show Amina's transfer check, live. Start the server with `cargo run -p async-backend`, ask it the question with the `curl` command in `0x0C-async-backend/src/main.rs`, and explain each line of the answer in plain words.
+2. Walk through what happens at 06:00 every day: run `cargo run -p jobs-alerts --example morning_run` and show who gets told, how, and why running it twice sends nothing new.
 3. Ask the five open questions from the worksheet, and write the answers as rules plus fixtures cases.
 
 ## Checkpoint: the end of the course

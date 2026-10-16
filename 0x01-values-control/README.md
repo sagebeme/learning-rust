@@ -2,6 +2,17 @@
 
 **Week 1** · Numbers that can't silently overflow, `if`, `match` and loops.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| 0x00 done | `cargo test -p hello-cargo` passes | Go back to [0x00](../0x00-hello-cargo) |
+| To know what `if` and a loop do in any language | You could explain FizzBuzz | Weeks 0–1 of [CS50x](https://cs50.harvard.edu/x/) |
+
+## The story so far
+
+You can build, test and lint Rust code. Now Amina's licences need a countdown: is each one valid, expiring soon, or expired? And how many hours has she worked this week, without the total ever silently going wrong?
+
 ## What you'll be able to do
 
 - Choose an integer type on purpose, and say what happens when a value doesn't fit
@@ -10,9 +21,11 @@
 
 ## Read first
 
-- The Book: **Common Programming Concepts** (variables, data types, functions, control flow)
-- *Rust by Example*: **Primitives**, **Flow of Control**
-- Rustlings: `functions`, `if`, `primitive_types`
+- The Book: [Common Programming Concepts](https://doc.rust-lang.org/book/ch03-00-common-programming-concepts.html) (variables, data types, functions, control flow)
+- *Rust by Example*: [Primitives](https://doc.rust-lang.org/rust-by-example/primitives.html), [Flow of Control](https://doc.rust-lang.org/rust-by-example/flow_control.html)
+- [Rustlings](https://rustlings.rust-lang.org/): `functions`, `if`, `primitive_types`
+
+**Go deeper:** [`u16::checked_add`](https://doc.rust-lang.org/std/primitive.u16.html#method.checked_add) and the other `checked_`, `saturating_` and `wrapping_` methods on the same page; the Book on [integer overflow](https://doc.rust-lang.org/book/ch03-02-data-types.html#integer-overflow).
 
 ## Tasks
 

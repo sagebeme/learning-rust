@@ -2,6 +2,21 @@
 
 **Week 6** · Storing TWA's data in Postgres from Rust: schema design, queries, migrations, and transactions that never leave a job half-done.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| 0x0A done | `cargo test -p tauri-core` passes | Go back to [0x0A](../0x0A-tauri-core) |
+| Docker, or Postgres installed | `docker run hello-world` prints a greeting, or `psql --version` prints a version | [Get Docker](https://docs.docker.com/get-started/get-docker/), or [install PostgreSQL](https://www.postgresql.org/download/) directly. The Setup section below has the one command to start it |
+| Basic SQL: `SELECT`, `INSERT`, `WHERE`, `JOIN` | You can read `SELECT name FROM employees WHERE station_code = 'NBO'` | The [PostgreSQL tutorial](https://www.postgresql.org/docs/current/tutorial.html), chapter 2 (an hour) |
+| To know what `.await` does, roughly | "Wait for the database to answer" | Enough for now: async is taught properly in [0x0C](../0x0C-async-backend) |
+
+## The story so far
+
+The app can show Amina's gap report. But the app's state disappears when it closes, and every station needs to see the same records. They belong in a database: Postgres, hosted on Supabase. This week Amina's records move into it, and come back out into the engine.
+
+The database project uses the engine too (task 4). See "Using your own engine" in [0x0A's README](../0x0A-tauri-core/README.md#using-your-own-engine) to switch it to yours.
+
 ## What you'll be able to do
 
 - Read and write a Postgres schema that enforces the rules itself (keys, foreign keys, checks)
@@ -11,9 +26,11 @@
 
 ## Read first
 
-- PostgreSQL tutorial: chapters 2 and 3 (the SQL language, and advanced features: foreign keys, transactions)
-- `sqlx` README, and the docs for `query`, `query_as`, `FromRow`, `Transaction` and `#[sqlx::test]`
-- Supabase docs: **Database → Overview**. Supabase *is* Postgres, so everything here applies.
+- The [PostgreSQL tutorial](https://www.postgresql.org/docs/current/tutorial.html): chapters 2 and 3 (the SQL language, and advanced features: foreign keys, transactions)
+- The [sqlx README](https://github.com/launchbadge/sqlx), and the [sqlx docs](https://docs.rs/sqlx) for `query`, `query_as`, `FromRow`, `Transaction` and `#[sqlx::test]`
+- Supabase docs: [Database overview](https://supabase.com/docs/guides/database/overview). Supabase *is* Postgres, so everything here applies.
+
+**Go deeper:** Postgres on [constraints](https://www.postgresql.org/docs/current/ddl-constraints.html), [`INSERT ... ON CONFLICT`](https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT) and [explicit locking](https://www.postgresql.org/docs/current/explicit-locking.html) (`FOR UPDATE`); [Use The Index, Luke](https://use-the-index-luke.com/) for making queries fast.
 
 ## Setup: a Postgres to test against
 
@@ -78,11 +95,19 @@ tx.commit().await?;
 
 If the function returns early with an error before `commit`, dropping `tx` rolls everything back. Use `SELECT ... FOR UPDATE` to read the current department, so two transfers of the same person can't interleave.
 
+### 4. The database meets the engine (`t04_engine_bridge.rs`)
+
+When the training office records that Amina completed a course, *who* decides when it expires? Not the database, and not the person typing: the engine. `record_completion` looks up the qualification type, asks the engine for `valid_until`, and stores both with task 1's upsert. `holdings_for` reads a person's records back as the engine's own `Holding` type. The last test stores Amina's records, reads them back, and checks that the engine gives exactly the same gap report from the database as from the sample data.
+
 ### 100. Import a roster (`t100_import_employees.rs`) — advanced
 
 Insert many employees in one transaction: if any row fails, none are saved, and the error says which row. That's what HR expects from "import": all or nothing, not "the first 400 of 900 went in".
 
-## Next step: checked queries
+## Next steps
+
+**Recency needs a column.** The `holdings` table has no "last used" date, so recency rules can't be checked from the database yet. Write a second migration (`migrations/0002_last_used.sql`) that adds `last_used_on DATE`, and load it in `holdings_for`.
+
+## Checked queries
 
 `sqlx::query!` (with a `!`) checks your SQL against the real database **at compile time**: misspell a column and it won't compile. It needs a database (or saved query data) while building, which is why this project uses the unchecked `query` functions. Try converting one query once your tests pass.
 

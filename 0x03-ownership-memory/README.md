@@ -4,6 +4,18 @@
 
 In C (your ALX projects), *you* decided when memory was allocated and freed, and the compiler trusted you. Every `malloc` needed a matching `free`, at the right moment, exactly once. Rust makes the same decisions, but the compiler checks them before the program ever runs.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| Week 1 done | `cargo test -p functions-modules` passes | Finish [0x00](../0x00-hello-cargo)–[0x02](../0x02-functions-modules) first |
+| 0x00's stack-and-heap task | You can say where a `String`'s text lives | Re-read task 2 of [0x00](../0x00-hello-cargo) |
+| Your ALX C code (optional, for the review) | You remember what `malloc` and `free` did | Not needed: the review explains each bug |
+
+## The story so far
+
+You can write and organise small programs. But every one of them copied data freely. TWA's engine will handle 800 staff and their records on cheap phones, so it has to be precise about who owns each piece of data and when it's freed. That's what makes Rust different from every language you've used, and the rest of the course rests on it.
+
 ## What you'll be able to do
 
 - Say who owns a value at any point in a function, and when it gets freed
@@ -12,9 +24,11 @@ In C (your ALX projects), *you* decided when memory was allocated and freed, and
 
 ## Read first
 
-- The Book: **Understanding Ownership** (all three sections). Read it twice; it's that important.
-- *Rust by Example*: **Scoping rules** (RAII, ownership and moves, borrowing)
-- Rustlings: `move_semantics`, `strings`, `vecs`
+- The Book: [Understanding Ownership](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html) (all three sections). Read it twice; it's that important.
+- *Rust by Example*: [Scoping rules](https://doc.rust-lang.org/rust-by-example/scope.html): RAII, ownership and moves, borrowing
+- [Rustlings](https://rustlings.rust-lang.org/): `move_semantics`, `strings`, `vecs`
+
+**Go deeper:** the [`String`](https://doc.rust-lang.org/std/string/struct.String.html) and [`str`](https://doc.rust-lang.org/std/primitive.str.html) docs (which methods return slices, and which allocate), and [Learning Rust With Entirely Too Many Linked Lists](https://rust-unofficial.github.io/too-many-lists/), the introduction.
 
 ## The rules, in plain words
 

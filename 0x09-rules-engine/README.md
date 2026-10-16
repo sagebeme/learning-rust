@@ -6,6 +6,17 @@ When someone transfers to a new department, TWA asks one question: *what does th
 
 When you finish, you've done the foundations. The rest of the course puts this engine inside an app, a database and a server.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| 0x08 done | `cargo test -p traits-dates-testing` passes | Go back to [0x08](../0x08-traits-dates-testing) |
+| 0x04's statuses and 0x06's `BTreeMap` fresh in your mind | You can explain why the engine's output must be in a fixed order | Re-read [0x04](../0x04-structs-enums-match) task 1 and the [0x06](../0x06-collections-iterators) "HashMap or BTreeMap?" section |
+
+## The story so far
+
+Every piece is ready: types that can't be wrong, safe loading, collections in a fixed order, exact dates, property tests. Now they come together into the engine that answers Amina's question. The data for her story is in `src/sample.rs` (given): five qualification types, two roles, and four fake staff members with their records.
+
 ## What you'll be able to do
 
 - Turn written business rules (validity, grace, warning, recency, prerequisites, equivalents) into code that's exact about every boundary
@@ -15,7 +26,9 @@ When you finish, you've done the foundations. The rest of the course puts this e
 ## Read first
 
 - Re-read your own 0x04 (`QualificationStatus`), 0x06 (`BTreeMap`) and 0x08 (dates, property tests)
-- The `serde` docs: "Derive", and "Enum representations" (the `tag` attribute)
+- The serde docs: [Using derive](https://serde.rs/derive.html), and [Enum representations](https://serde.rs/enum-representations.html) (the `tag` attribute)
+
+**Go deeper:** [`std::cmp::Reverse`](https://doc.rust-lang.org/std/cmp/struct.Reverse.html); the proptest book on [strategies](https://proptest-rs.github.io/proptest/proptest/tutorial/strategy-basics.html); and Kahn's algorithm, which task 100 uses, on [Wikipedia](https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm).
 
 ## The model (`src/model.rs`, given)
 

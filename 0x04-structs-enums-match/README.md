@@ -2,6 +2,17 @@
 
 **Week 2** · Modelling TWA's world so that impossible situations can't be written down.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| 0x03 done | `cargo test -p ownership-memory` passes | Go back to [0x03](../0x03-ownership-memory) |
+| To know the difference between `String` and `&str` | You can say which one a struct field should usually be, and why | Re-read the Book's [The Slice Type](https://doc.rust-lang.org/book/ch04-03-slices.html) |
+
+## The story so far
+
+You know who owns what. Now TWA's world needs shapes: Amina's station, the state of each of her qualifications, and qualification types that can't be created with nonsense in them. This is where the rules engine really starts.
+
 ## What you'll be able to do
 
 - Model data with `struct` (this *and* that) and `enum` (this *or* that)
@@ -10,9 +21,11 @@
 
 ## Read first
 
-- The Book: **Using Structs to Structure Related Data**, **Enums and Pattern Matching**
-- *Rust by Example*: **Custom Types**, **match**
-- Rustlings: `structs`, `enums`, `options`
+- The Book: [Using Structs to Structure Related Data](https://doc.rust-lang.org/book/ch05-00-structs.html), [Enums and Pattern Matching](https://doc.rust-lang.org/book/ch06-00-enums.html)
+- *Rust by Example*: [Custom Types](https://doc.rust-lang.org/rust-by-example/custom_types.html), [match](https://doc.rust-lang.org/rust-by-example/flow_control/match.html)
+- [Rustlings](https://rustlings.rust-lang.org/): `structs`, `enums`, `options`
+
+**Go deeper:** the Book's chapter on [Patterns and Matching](https://doc.rust-lang.org/book/ch19-00-patterns.html), and the [`Option`](https://doc.rust-lang.org/std/option/enum.Option.html) docs (`map`, `ok_or`, `and_then` save a lot of `match`es).
 
 ## The big idea: make illegal states unrepresentable
 

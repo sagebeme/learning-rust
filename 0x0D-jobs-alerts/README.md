@@ -2,6 +2,20 @@
 
 **Week 7** · The daily expiry check: deciding who to tell, sending by email, SMS, WhatsApp and push, and never sending the same alert twice.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| 0x0C done | `cargo test -p async-backend` passes | Go back to [0x0C](../0x0C-async-backend) |
+| To know what UTC and time zones are | You can say what time it is in UTC at 06:00 in Nairobi | The [UTC article](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) intro; Nairobi is UTC+3 all year |
+| Provider accounts | Not needed: this project only uses a fake sender | When you build the real job, you'll need sandbox accounts with [Africa's Talking](https://developers.africastalking.com/docs/sms/overview), the [WhatsApp Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api) and [Firebase](https://firebase.google.com/docs/cloud-messaging) |
+
+## The story so far
+
+The server tells HR that Amina isn't ready yet, partly because her dangerous goods certificate expires on 1 November. But nobody should have to ask: TWA must *tell* her, in time, on the channel she prefers, exactly once. That's the 06:00 job, and it starts from the engine's dates.
+
+This project uses the engine too (task 4). See "Using your own engine" in [0x0A's README](../0x0A-tauri-core/README.md#using-your-own-engine) to switch it to yours.
+
 ## What you'll be able to do
 
 - Plan alerts as plain data first, and send them as a separate step
@@ -11,9 +25,11 @@
 
 ## Read first
 
-- Tokio docs: `tokio::time` (`sleep`, `timeout`, and pausing time in tests)
-- The Rust Reference / release notes on **async functions in traits** (Rust 1.75), and why public traits often write `-> impl Future<Output = ...> + Send` instead
-- Skim the provider docs you'll use in TWA: Africa's Talking SMS API, the WhatsApp Business Cloud API (message templates and opt-in rules), Firebase Cloud Messaging, and an SMTP or email API. Don't call any of them in this project: the course uses a fake sender.
+- Tokio docs: [`tokio::time`](https://docs.rs/tokio/latest/tokio/time/index.html) (`sleep`, `timeout`, and [pausing time in tests](https://docs.rs/tokio/latest/tokio/time/fn.pause.html))
+- The Rust blog post [announcing async fn in traits](https://blog.rust-lang.org/2023/12/21/async-fn-rpit-in-traits.html), which explains why public traits often write `-> impl Future<Output = ...> + Send` instead
+- Skim the provider docs you'll use in TWA: [Africa's Talking SMS](https://developers.africastalking.com/docs/sms/overview), the [WhatsApp Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api) (message templates and opt-in rules) and [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging). Don't call any of them in this project: the course uses a fake sender.
+
+**Go deeper:** AWS's article on [timeouts, retries and backoff with jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/), and Postgres's [`SKIP LOCKED`](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE) for running a job on several servers.
 
 ## The shape of a good job
 
@@ -50,6 +66,19 @@ The tests run with Tokio's clock paused, so "wait 7 seconds" takes no time, and 
 ### 3. Run at 06:00 Nairobi time (`t03_schedule.rs`)
 
 A server usually runs in UTC. Nairobi is UTC+3 all year (no daylight saving), so a `FixedOffset` is the right tool. Work out "today at 06:00" in Nairobi; if that's already passed, it's tomorrow. Then convert back to UTC. The tests include the trap: at 22:30 UTC it's already tomorrow in Nairobi.
+
+### 4. From the engine to the job (`t04_from_engine.rs`)
+
+The job's input comes from the engine: for every person and holding, the engine's `valid_until`. A renewal must win over the old certificate, or the job keeps reminding Amina about a certificate she's already replaced. The last test runs the whole chain, engine → items → planned alerts, for the morning of 25 October 2026: Amina gets one WhatsApp, a week before her dangerous goods certificate expires.
+
+Then run it yourself:
+
+```bash
+cargo run -p jobs-alerts --example morning_run
+cargo run -p jobs-alerts --example morning_run 2026-11-02
+```
+
+The example (`examples/morning_run.rs`, given) plans and "sends" a morning's alerts for the story's staff, printing them instead of sending, then runs again to show nothing goes out twice.
 
 ### 100. Fit one SMS (`t100_fit_sms.rs`) — advanced
 

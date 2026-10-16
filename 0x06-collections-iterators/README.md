@@ -4,6 +4,17 @@
 
 ALX's hash tables and search algorithms, revisited. You'll rebuild your hash table, fix the bug it had, and write a binary search that can't run off the end.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| 0x05 done | `cargo test -p errors-files-cli` passes | Go back to [0x05](../0x05-errors-files-cli) |
+| To know what a closure is, roughly | You can read `\|x\| x + 1` as "a small function that adds one" | The Book's [Closures](https://doc.rust-lang.org/book/ch13-01-closures.html) section |
+
+## The story so far
+
+The roster loads safely. Now there are 800 records, not one. The training manager wants counts per station and a list of what's expiring this month. Amina is one row among many, and the answers must come out in the same order every time.
+
 ## What you'll be able to do
 
 - Pick the right collection: `Vec`, `HashMap`, `BTreeMap`, `HashSet`
@@ -12,9 +23,11 @@ ALX's hash tables and search algorithms, revisited. You'll rebuild your hash tab
 
 ## Read first
 
-- The Book: **Common Collections**, **Processing a Series of Items with Iterators**
-- *Rust by Example*: **Iterator::any**, **Iterator::find**, **HashMap**
-- Rustlings: `hashmaps`, `iterators`
+- The Book: [Common Collections](https://doc.rust-lang.org/book/ch08-00-common-collections.html), [Processing a Series of Items with Iterators](https://doc.rust-lang.org/book/ch13-02-iterators.html)
+- *Rust by Example*: [Iterator::any](https://doc.rust-lang.org/rust-by-example/fn/closures/closure_examples/iter_any.html), [Iterator::find](https://doc.rust-lang.org/rust-by-example/fn/closures/closure_examples/iter_find.html), [HashMap](https://doc.rust-lang.org/rust-by-example/std/hash.html)
+- [Rustlings](https://rustlings.rust-lang.org/): `hashmaps`, `iterators`
+
+**Go deeper:** [`std::collections`](https://doc.rust-lang.org/std/collections/index.html) (its first page explains when to use which collection), and the [`Iterator`](https://doc.rust-lang.org/std/iter/trait.Iterator.html) trait's list of methods.
 
 ## `HashMap` or `BTreeMap`?
 

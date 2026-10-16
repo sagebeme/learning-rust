@@ -4,6 +4,18 @@
 
 ALX's file I/O and argc/argv projects, the Rust way. In C you checked every return value (or forgot to) and closed every file descriptor (or leaked it). In Rust, a function that can fail *says so in its type*, and files close themselves when they go out of scope.
 
+## Before you start
+
+| You need | Check | If it's missing |
+| --- | --- | --- |
+| Week 2 done | `cargo test -p structs-enums-match` passes | Finish [0x03](../0x03-ownership-memory) and [0x04](../0x04-structs-enums-match) first |
+| To know `Option` and `match` | You can explain what `?` did in 0x04's task 100 | Re-read 0x04's task 100, and the Book's [Option](https://doc.rust-lang.org/book/ch06-01-defining-an-enum.html#the-option-enum-and-its-advantages-over-null-values) section |
+| **On Windows: a C toolchain** | `cargo test -p errors-files-cli` builds (it fails tests, but compiles) | This is the first project that needs one: see the [setup table](../README.md#what-you-need-installed) |
+
+## The story so far
+
+TWA's types are taking shape. But real data arrives from outside: HR exports a roster file, and it will have mistakes in it. Amina's records have to be read from it, and saved again, without a bad line or a power cut ever losing anything.
+
 ## What you'll be able to do
 
 - Design an error type that tells the person reading it exactly what to fix
@@ -12,10 +24,12 @@ ALX's file I/O and argc/argv projects, the Rust way. In C you checked every retu
 
 ## Read first
 
-- The Book: **Error Handling** (all of it, especially "To panic! or Not to panic!")
-- *Rust by Example*: **Error handling** → `Result`, `?`, **Defining an error type**
-- The `thiserror` crate's README (one page)
-- Rustlings: `error_handling`
+- The Book: [Error Handling](https://doc.rust-lang.org/book/ch09-00-error-handling.html) (all of it, especially [To panic! or Not to panic!](https://doc.rust-lang.org/book/ch09-03-to-panic-or-not-to-panic.html))
+- *Rust by Example*: [Error handling](https://doc.rust-lang.org/rust-by-example/error.html), especially [Result](https://doc.rust-lang.org/rust-by-example/error/result.html) and [Defining an error type](https://doc.rust-lang.org/rust-by-example/error/multiple_error_types/define_error_type.html)
+- The [`thiserror` docs](https://docs.rs/thiserror) (one page)
+- [Rustlings](https://rustlings.rust-lang.org/): `error_handling`
+
+**Go deeper:** [`std::fs`](https://doc.rust-lang.org/std/fs/index.html) and [`File::sync_all`](https://doc.rust-lang.org/std/fs/struct.File.html#method.sync_all); the [`clap`](https://docs.rs/clap) crate for real command-line tools; the [Error Handling chapter of the Rust API Guidelines](https://rust-lang.github.io/api-guidelines/interoperability.html#error-types-are-meaningful-and-well-behaved-c-good-err).
 
 ## Panic or `Result`?
 
