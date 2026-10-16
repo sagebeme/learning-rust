@@ -62,11 +62,13 @@ fn apply_solutions() -> io::Result<(usize, usize)> {
         projects += 1;
         for file in fs::read_dir(&solution_dir)? {
             let source = file?.path();
-            if source.extension().is_some_and(|ext| ext == "rs") {
-                if let Some(name) = source.file_name() {
-                    fs::copy(&source, project.join("src").join(name))?;
-                    files += 1;
-                }
+            if source.extension().is_some_and(|ext| ext == "rs")
+                && let Some(name) = source.file_name()
+            {
+                // Read and write rather than fs::copy: on Windows, copying keeps the old file's
+                // modified time, so Cargo would think nothing changed and reuse a stale build.
+                fs::write(project.join("src").join(name), fs::read(&source)?)?;
+                files += 1;
             }
         }
     }
