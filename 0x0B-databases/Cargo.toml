@@ -8,6 +8,10 @@ publish.workspace = true
 chrono.workspace = true
 sqlx.workspace = true
 thiserror.workspace = true
+# The rules engine. This uses the reference engine, so this week works even if your 0x09 isn't
+# finished. To use your own engine instead, replace the line below with:
+#   twa-engine = { package = "rules-engine", path = "../0x09-rules-engine" }
+twa-engine = { path = "../engine-reference" }
 
 [dev-dependencies]
 tokio.workspace = true

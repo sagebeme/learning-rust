@@ -2,8 +2,8 @@
 //!
 //! `GET /employees/{staff_number}` → the employee as JSON, or `NotFound("employee <number>")`.
 //!
-//! `POST /employees` with a `NewEmployee` body → **201 Created** and the stored `Employee` (with
-//! no codes yet). Check first, in this order:
+//! `POST /employees` with a `NewEmployee` body → **201 Created** and the stored `Employee`. Check
+//! first, in this order:
 //! - `staff_number` is above 0 → else `Invalid("staff number must be above 0")`
 //! - `name` and `department`, trimmed, aren't empty → else `Invalid("name can't be blank")` /
 //!   `Invalid("department can't be blank")`
@@ -65,7 +65,6 @@ pub async fn create_employee(
         name: name.to_string(),
         station: input.station,
         department: department.to_string(),
-        codes: Vec::new(),
     };
 
     let mut employees = state.employees.write().map_err(|_| poisoned())?;

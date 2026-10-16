@@ -5,6 +5,7 @@
 //! requirement (including equivalents), t03 → prerequisites, t04 → the gap check for a role.
 
 pub mod model;
+pub mod sample;
 
 pub mod t00_valid_until;
 pub mod t01_holding_state;

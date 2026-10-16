@@ -6,4 +6,5 @@ pub mod t00_plan_alerts;
 pub mod t01_daily_run;
 pub mod t02_retry;
 pub mod t03_schedule;
+pub mod t04_from_engine;
 pub mod t100_fit_sms;

@@ -1,19 +1,22 @@
-//! Task 3: can this person transfer?
+//! Task 3: can this person transfer? The server asks your engine.
 //!
-//! `POST /transfers/check` with `{"staff_number": 20020, "department": "Cargo", "role": "Handler"}`
-//! → `{"ready": false, "missing": ["DG", "FORKLIFT"]}`: the required codes the employee doesn't
-//! hold, sorted, each once.
-//! - unknown employee → `NotFound("employee <number>")`
-//! - no requirements for that department and role → `Invalid("no requirements for <role> in
-//!   <department>")`
+//! `POST /transfers/check` with
+//! `{"staff_number": 48213, "department": "Cargo", "role": "Handler", "on": "2026-10-19"}`
+//! → `{"ready": false, "report": <the engine's GapReport>}`.
 //!
-//! (The real server calls the 0x09 engine here, with holdings from the 0x0B database.)
-
-use std::collections::BTreeSet;
+//! 1. an unknown employee → `NotFound("employee <number>")`
+//! 2. copy their holdings out of the state (none recorded → an empty list), and let go of the lock
+//! 3. call `twa_engine::t04_gap_check::gap_check` with the state's catalogue and matrix, for the
+//!    date `on` (the day the transfer would take effect: the server never guesses "today")
+//! 4. engine errors: `UnknownRole` → `Invalid(<the engine error's message>)`;
+//!    `UnknownQualification` → `Internal(<the message>)`
 
 use axum::Json;
 use axum::extract::State;
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
+use twa_engine::model::{EngineError, GapReport};
+use twa_engine::t04_gap_check::gap_check;
 
 use crate::model::AppState;
 use crate::t01_api_error::ApiError;
@@ -23,42 +26,59 @@ pub struct TransferCheck {
     pub staff_number: u32,
     pub department: String,
     pub role: String,
+    pub on: NaiveDate,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct TransferAnswer {
     pub ready: bool,
-    pub missing: Vec<String>,
+    pub report: GapReport,
+}
+
+fn poisoned() -> ApiError {
+    ApiError::Internal("a store's lock is poisoned".to_string())
 }
 
 pub async fn check_transfer(
     State(state): State<AppState>,
     Json(check): Json<TransferCheck>,
 ) -> Result<Json<TransferAnswer>, ApiError> {
-    let held: BTreeSet<String> = {
-        let employees = state
-            .employees
-            .read()
-            .map_err(|_| ApiError::Internal("the employee store's lock is poisoned".to_string()))?;
-        let employee = employees
-            .get(&check.staff_number)
-            .ok_or_else(|| ApiError::NotFound(format!("employee {}", check.staff_number)))?;
-        employee.codes.iter().cloned().collect()
-    }; // the lock is released here, before anything else happens
+    if !state
+        .employees
+        .read()
+        .map_err(|_| poisoned())?
+        .contains_key(&check.staff_number)
+    {
+        return Err(ApiError::NotFound(format!(
+            "employee {}",
+            check.staff_number
+        )));
+    }
 
-    let required = state
-        .requirements
-        .get(&(check.department.clone(), check.role.clone()))
-        .ok_or_else(|| {
-            ApiError::Invalid(format!(
-                "no requirements for {} in {}",
-                check.role, check.department
-            ))
-        })?;
+    // Copy the holdings out, so the lock is released before the engine runs.
+    let holdings = state
+        .holdings
+        .read()
+        .map_err(|_| poisoned())?
+        .get(&check.staff_number)
+        .cloned()
+        .unwrap_or_default();
 
-    let missing: BTreeSet<&String> = required.iter().filter(|c| !held.contains(*c)).collect();
+    let report = gap_check(
+        &state.catalogue,
+        &state.matrix,
+        &check.department,
+        &check.role,
+        &holdings,
+        check.on,
+    )
+    .map_err(|error| match error {
+        EngineError::UnknownRole { .. } => ApiError::Invalid(error.to_string()),
+        EngineError::UnknownQualification(_) => ApiError::Internal(error.to_string()),
+    })?;
+
     Ok(Json(TransferAnswer {
-        ready: missing.is_empty(),
-        missing: missing.into_iter().cloned().collect(),
+        ready: report.is_ready(),
+        report,
     }))
 }

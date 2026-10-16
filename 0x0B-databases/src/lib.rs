@@ -7,4 +7,5 @@ pub mod t00_insert_employee;
 pub mod t01_record_holding;
 pub mod t02_expiring_between;
 pub mod t03_transfer_employee;
+pub mod t04_engine_bridge;
 pub mod t100_import_employees;

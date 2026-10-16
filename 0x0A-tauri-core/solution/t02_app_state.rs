@@ -14,6 +14,8 @@ use std::sync::{Mutex, MutexGuard};
 use chrono::NaiveDate;
 use serde::Serialize;
 
+use twa_engine::model::{Catalogue, RequirementsMatrix};
+
 use crate::t00_command_error::CommandError;
 use crate::t01_inputs::NewHolding;
 
@@ -36,6 +38,10 @@ pub struct StaffSummary {
 #[derive(Debug, Default)]
 pub struct AppState {
     staff: Mutex<BTreeMap<u32, StaffMember>>,
+    /// The qualification types and role requirements. They never change while the app runs, so
+    /// they need no lock.
+    catalogue: Catalogue,
+    matrix: RequirementsMatrix,
 }
 
 // Given: helpers for setting up and testing.
@@ -54,7 +60,17 @@ impl AppState {
             .collect();
         AppState {
             staff: Mutex::new(staff),
+            catalogue: twa_engine::sample::catalogue(),
+            matrix: twa_engine::sample::matrix(),
         }
+    }
+
+    pub fn catalogue(&self) -> &Catalogue {
+        &self.catalogue
+    }
+
+    pub fn matrix(&self) -> &RequirementsMatrix {
+        &self.matrix
     }
 
     /// Poisons the lock, the way a command that panicked mid-update would. For tests only.

@@ -11,6 +11,7 @@ use databases::t00_insert_employee::insert_employee;
 use databases::t01_record_holding::record_holding;
 use databases::t02_expiring_between::expiring_between;
 use databases::t03_transfer_employee::transfer_employee;
+use databases::t04_engine_bridge::{holdings_for, record_completion};
 use databases::t100_import_employees::import_employees;
 use sqlx::PgPool;
 
@@ -229,6 +230,69 @@ async fn t03_a_failed_audit_row_undoes_the_department_change(pool: PgPool) {
     // ...and the department change from the step before must have been rolled back.
     assert_eq!(department_of(&pool, 48213).await, "Ramp");
     assert_eq!(count(&pool, "transfers").await, 0);
+}
+
+// ---- task 4 ----
+
+#[sqlx::test(migrations = "./migrations")]
+async fn t04_the_engine_decides_valid_until(pool: PgPool) {
+    seed(&pool).await;
+    let catalogue = twa_engine::sample::catalogue();
+    // DG is valid for 24 calendar months.
+    assert!(
+        record_completion(&pool, &catalogue, 48213, "DG", d(2024, 2, 29))
+            .await
+            .unwrap()
+    );
+    let rows = expiring_between(&pool, d(2000, 1, 1), d(2100, 1, 1), None)
+        .await
+        .unwrap();
+    assert_eq!(rows[0].valid_until, d(2026, 2, 28));
+}
+
+#[sqlx::test(migrations = "./migrations")]
+async fn t04_an_unknown_qualification_is_refused_and_nothing_is_stored(pool: PgPool) {
+    seed(&pool).await;
+    let catalogue = twa_engine::sample::catalogue();
+    let result = record_completion(&pool, &catalogue, 48213, "PILOT", d(2026, 1, 1)).await;
+    assert!(
+        matches!(&result, Err(DbError::UnknownQualification(code)) if code == "PILOT"),
+        "{result:?}"
+    );
+    assert_eq!(count(&pool, "holdings").await, 0);
+}
+
+#[sqlx::test(migrations = "./migrations")]
+async fn t04_amina_from_the_database_gets_the_same_gap_report(pool: PgPool) {
+    seed(&pool).await;
+    let catalogue = twa_engine::sample::catalogue();
+    for holding in &twa_engine::sample::holdings()[&48213] {
+        record_completion(
+            &pool,
+            &catalogue,
+            48213,
+            &holding.code,
+            holding.completed_on,
+        )
+        .await
+        .unwrap();
+    }
+
+    let from_database = holdings_for(&pool, 48213).await.unwrap();
+    let codes: Vec<&str> = from_database.iter().map(|h| h.code.as_str()).collect();
+    assert_eq!(codes, ["AIRSIDE", "DG-ICAO", "FIRE"]);
+
+    // The engine gives the same answer from the database's records as from the sample data.
+    let on = d(2026, 10, 19);
+    let matrix = twa_engine::sample::matrix();
+    let check = |holdings: &[twa_engine::model::Holding]| {
+        twa_engine::t04_gap_check::gap_check(&catalogue, &matrix, "Cargo", "Handler", holdings, on)
+    };
+    assert_eq!(
+        check(&from_database),
+        check(&twa_engine::sample::holdings()[&48213])
+    );
+    assert!(!check(&from_database).unwrap().is_ready());
 }
 
 // ---- task 100 ----

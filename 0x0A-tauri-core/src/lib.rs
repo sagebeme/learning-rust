@@ -5,4 +5,5 @@ pub mod t00_command_error;
 pub mod t01_inputs;
 pub mod t02_app_state;
 pub mod t03_capabilities;
+pub mod t04_gap_for;
 pub mod t100_events;

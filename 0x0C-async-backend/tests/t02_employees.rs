@@ -23,8 +23,7 @@ async fn gets_an_employee() {
             "staff_number": 48213,
             "name": "Amina Wanjiru",
             "station": "NBO",
-            "department": "Ramp",
-            "codes": ["AIRSIDE", "FIRE"]
+            "department": "Ramp"
         })
     );
 }
@@ -53,7 +52,7 @@ async fn creates_an_employee() {
 
     let fetched = call(routes(state), "GET", "/employees/55555", None, None).await;
     assert_eq!(fetched.status, StatusCode::OK);
-    assert_eq!(fetched.json()["codes"], json!([]));
+    assert_eq!(fetched.json()["station"], "EDL");
 }
 
 #[tokio::test]

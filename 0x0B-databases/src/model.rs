@@ -39,6 +39,8 @@ pub enum DbError {
     UnknownStation(String),
     #[error("staff member {0} was not found")]
     NotFound(i32),
+    #[error("qualification {0:?} is not in the catalogue")]
+    UnknownQualification(String),
     #[error("row {row}: {source}")]
     InRow {
         row: usize,
