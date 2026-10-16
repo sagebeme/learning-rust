@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: Format, lint and test every solution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install the toolchain from rust-toolchain.toml
+        run: rustup show
+
+      - name: Starter code is formatted
+        run: cargo fmt --all --check
+
+      - name: Copy each project's solution/ over its src/
+        run: cargo xtask apply-solutions --ci
+
+      - name: Solutions are formatted
+        run: cargo fmt --all --check
+
+      - name: Clippy, warnings are errors
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Tests
+        run: cargo test --workspace
