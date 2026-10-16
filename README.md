@@ -4,7 +4,7 @@ An 8-week, project-based Rust course for the developer building TWA: a training 
 
 | Your job on TWA | Where the course covers it |
 | --- | --- |
-| Architecture | Week 1 decision, 0x0A, 0x0E |
+| Architecture | Week 1 Tauri spike and decision record, 0x0A, 0x0E |
 | The Rust rules engine | 0x03 – 0x09 |
 | Database | 0x0B |
 | Backend service and alerts | 0x0C, 0x0D |
@@ -58,11 +58,11 @@ A task is done when its tests pass **and** clippy prints nothing. CI runs the sa
 
 | Week | Projects | What you'll learn |
 | --- | --- | --- |
-| 1 | [0x00 hello-cargo](0x00-hello-cargo) · [0x01 values-control](0x01-values-control) · [0x02 functions-modules](0x02-functions-modules) · **[the client-app decision](docs/client-app-decision.md)** | Tooling, reading compiler errors, types and overflow, control flow, modules, unit tests |
+| 1 | [0x00 hello-cargo](0x00-hello-cargo) · [0x01 values-control](0x01-values-control) · [0x02 functions-modules](0x02-functions-modules) · **[the Tauri spike](docs/week-1-tauri.md)** | Tooling, reading compiler errors, types and overflow, control flow, modules, unit tests. Setting up Tauri and calling your first Rust command from the app |
 | 2 | 0x03 ownership-memory · 0x04 structs-enums-match | Stack and heap, moves, borrowing, slices, `String` vs `&str`, `Drop`. Modelling qualifications |
 | 3 | 0x05 errors-files-cli · 0x06 collections-iterators · 0x07 smart-pointers-lifetimes | `Result` and `?`, error types, files, safe writes. Maps, iterators, a hand-built hash map. `Box`, `Rc`, `Arc`, lifetimes |
 | 4 | 0x08 traits-dates-testing · **0x09 rules-engine** | Traits, generics, dates, property tests. A small working qualification engine: the end of the foundations |
-| 5 | 0x0A crates-and-ffi | Libraries, calling Rust from other languages, how the engine reaches every platform |
+| 5 | 0x0A tauri-core | The engine inside a Tauri app: commands, shared state, events, errors the screens can show, permissions, desktop and mobile builds |
 | 6 | 0x0B databases | SQL design, Postgres with sqlx, migrations, transactions, SQLite on devices |
 | 7 | 0x0C async-backend · 0x0D jobs-alerts | Async Rust, an Axum web service, the daily expiry job, email, SMS, WhatsApp and push alerts |
 | 8 | 0x0E architecture-and-clients | Architecture decisions, reviewing real pull requests, presenting to a client |
@@ -84,7 +84,7 @@ Weeks 2–8 are added to this repo ahead of when you need them.
 
 ## Progress
 
-- [ ] Week 1: 0x00, 0x01, 0x02, client-app decision record
+- [ ] Week 1: 0x00, 0x01, 0x02, Tauri spike and decision record
 - [ ] Week 2: 0x03, 0x04
 - [ ] Week 3: 0x05, 0x06, 0x07
 - [ ] Week 4: 0x08, 0x09 (end of the foundations)

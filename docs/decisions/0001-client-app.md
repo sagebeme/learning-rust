@@ -1,30 +1,32 @@
 # 0001. Client app technology
 
-- **Status:** proposed <!-- proposed → accepted, or superseded by 000N -->
+- **Status:** accepted
 - **Date:**
 - **Decided by:**
 
 ## Context
 
-<!-- What problem does this decide? Which platforms must the app run on? Which constraints matter
-     (4-month deadline, offline stations, the shared Rust engine, team skills)? -->
+<!-- What problem does this decide? The app must run on Android, iOS, Windows, macOS and Linux,
+     share one Rust rules engine, work offline at stations, and ship within the 4-month project. -->
 
 ## Options considered
 
-<!-- One line per option, with its total score from docs/client-app-decision.md. -->
+The team compared Swift, Kotlin Multiplatform with Compose Multiplatform, Flutter, Tauri 2 and a pure-Rust UI (egui).
 
-| Option | Score | Spike result |
-| --- | --- | --- |
-| | | |
+<!-- One line per option: what ruled it out, or what it would have cost. -->
 
 ## Decision
 
-<!-- One or two sentences: "We will build the client app with ___ because ___." -->
+We will build the client app with **Tauri 2**: a Rust core that holds the rules engine and local data, with screens written in web technology.
+
+<!-- Add one or two sentences on why, in your own words. -->
 
 ## Consequences
 
-<!-- What this makes easier, what it makes harder, and what you will have to watch.
-     Include the bridge to the Rust engine and who maintains it. -->
+<!-- What this makes easier, what it makes harder, and what you'll have to watch. Cover at least:
+     the four different web views, mobile plugin support, iOS builds needing a Mac, Tauri's
+     permission (capabilities) model, and keeping secrets off the device. Add your spike results:
+     build times, workarounds and app size per platform. -->
 
 ## How to explain it to the client
 
