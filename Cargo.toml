@@ -6,6 +6,19 @@ members = ["0x*", "xtask"]
 edition = "2024"
 publish = false
 
+[workspace.dependencies]
+axum = "0.8"
+chrono = { version = "0.4", default-features = false, features = ["std", "serde"] }
+http-body-util = "0.1"
+proptest = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres", "chrono", "migrate", "macros"] }
+tempfile = "3"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+tower = { version = "0.5", features = ["util"] }
+
 [workspace.lints.rust]
 unsafe_code = "forbid"
 

@@ -1,0 +1,14 @@
+[package]
+name = "errors-files-cli"
+version = "0.1.0"
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true
