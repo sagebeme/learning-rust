@@ -19,6 +19,9 @@ use crate::model::{Catalogue, EngineError, Holding, RequirementState};
 use crate::t00_valid_until::valid_until;
 use crate::t01_holding_state::holding_state;
 
+/// How candidates compare: rank first, then the later valid-until date, then the code.
+type SortKey = (u8, Reverse<NaiveDate>, String);
+
 pub fn best_holding(
     catalogue: &Catalogue,
     code: &str,
@@ -31,7 +34,7 @@ pub fn best_holding(
     let accepts =
         |candidate: &str| candidate == code || required.equivalents.iter().any(|e| e == candidate);
 
-    let mut best: Option<((u8, Reverse<NaiveDate>, String), RequirementState)> = None;
+    let mut best: Option<(SortKey, RequirementState)> = None;
     for holding in holdings.iter().filter(|h| accepts(&h.code)) {
         let own_type = catalogue
             .get(&holding.code)

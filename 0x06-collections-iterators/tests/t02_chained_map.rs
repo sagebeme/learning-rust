@@ -1,5 +1,6 @@
 use collections_iterators::t02_chained_map::{ChainedMap, djb2};
 
+// djb2 is given, so this test passes from the start. It's here so you can trust the hash.
 #[test]
 fn djb2_matches_the_alx_values() {
     assert_eq!(djb2(""), 5381);
