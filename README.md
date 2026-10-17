@@ -88,6 +88,25 @@ cargo clippy -p values-control -- -D warnings         # lint it
 
 A task is done when its tests pass **and** clippy prints nothing. CI runs the same checks against every `solution/`, with warnings treated as errors.
 
+### Where am I?
+
+```bash
+cargo xtask progress            # every project
+cargo xtask progress 0x01 0x02  # just these
+```
+
+It runs each project's tests and clippy, without changing your code, and lists every task:
+
+```
+0x01 Values and control flow — 3 of 6 done
+  [x] t00   What a licence countdown means
+  [ ] t02   Total hours, without overflowing        to do
+  [!] t03   The four-day shift cycle                0 of 2 tests pass
+  [~] t04   The duty board                          tests pass, clippy has 1 warning(s)
+```
+
+`[x]` is done, `[~]` passes its tests but clippy has something to say, `[!]` has failing tests, and `[ ]` is still `todo!()`. A project that doesn't compile shows its first error. The report is also saved to `progress.json` (ignored by git), which the course website reads.
+
 ## The 8 weeks
 
 | Week | Projects | What you'll learn |
@@ -120,7 +139,14 @@ A task is done when its tests pass **and** clippy prints nothing. CI runs the sa
 - **Read the compiler error before searching for it.** Rust's errors usually say exactly what's wrong and often suggest the fix. `rustc --explain E0382` gives the long version of any error code.
 - **Use AI to explain, not to write.** Ask it what an error means, or why the borrow checker objects. Don't paste in code you couldn't explain line by line to your reviewer.
 - **Look at `solution/` last.** If you do, close it and write your own version from memory.
-- **Never run `cargo xtask apply-solutions`.** It's for CI, and it overwrites your `src/` with the reference solutions.
+- **Never run `cargo xtask apply-solutions`.** It's for CI, and it overwrites your `src/` with the reference solutions. To see the solutions pass without touching your work, run `cargo xtask verify-solutions`: it checks them in a copy under `target/`.
+
+## How the checker is checked
+
+CI proves both halves of every task, so you can trust a red or green result:
+
+- `cargo xtask check-starters`: every task has a solution and tests, the starters compile, and every task has at least one test that **fails** on its `todo!()` starter. A test that passes before you've written anything would be a checker that checks nothing.
+- `cargo xtask apply-solutions --ci`, then fmt, clippy and the tests: every reference solution **passes**, with warnings treated as errors.
 
 ## Progress
 

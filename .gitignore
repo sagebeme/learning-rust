@@ -2,3 +2,4 @@
 *.exe
 *.pdb
 *.proptest-regressions
+/progress.json

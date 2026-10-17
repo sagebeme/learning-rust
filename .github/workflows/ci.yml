@@ -36,6 +36,9 @@ jobs:
       - name: Starter code is formatted
         run: cargo fmt --all --check
 
+      - name: Every task has tests that fail on its starter
+        run: cargo xtask check-starters
+
       - name: Copy each project's solution/ over its src/
         run: cargo xtask apply-solutions --ci
 
