@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson · Learning Rust</title>
+<meta name="description" content="One project of the Learning Rust course: the brief, the tasks, and a checklist that saves your progress.">
+<meta name="theme-color" content="#111111">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body id="top">
+<a class="skip" href="#lesson">Skip to the lesson</a>
+
+<nav class="navbar" aria-label="Main">
+  <div class="container">
+    <a class="brand" href="index.html">
+      <span class="pict" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
+      <span>Learning Rust<small>TWA ground school</small></span>
+    </a>
+    <ul class="nav-links">
+      <li class="keep"><a href="index.html#board">Departures</a></li>
+      <li><a href="index.html#guides">Guides</a></li>
+      <li><a href="https://github.com/sagebeme/learning-rust">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="page-head">
+  <div class="container">
+    <ol class="crumbs">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#board" id="crumb-week">Departures</a></li>
+      <li aria-current="page" id="crumb-here">Lesson</li>
+    </ol>
+    <div class="pass" id="pass">
+      <div class="pass-main">
+        <div class="pass-top"><span class="airline">TWA · Ground school</span><span id="pass-kind">Boarding pass</span></div>
+        <h1 id="title">Loading…</h1>
+        <p class="summary" id="summary"></p>
+        <dl class="fields" id="fields"></dl>
+      </div>
+      <div class="pass-stub">
+        <div class="seat" id="seat-label">Flight<b id="seat">—</b></div>
+        <div class="barcode" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="lesson">
+    <main id="lesson" class="panel prose" tabindex="-1"><p>Loading the lesson…</p></main>
+
+    <aside class="sidebar" aria-label="This project's progress">
+      <section class="panel" id="check-panel" aria-labelledby="check-title">
+        <h2 id="check-title">Pre-flight checklist <small id="check-count"></small></h2>
+        <ul class="checklist" id="checklist"></ul>
+        <div class="progress-line">
+          <div class="meter" id="meter" role="progressbar" aria-label="This project's progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="bar"></span></div>
+          <span id="pct">0%</span>
+        </div>
+        <p class="done-msg" id="done-msg" role="status" hidden></p>
+        <p class="side-note" id="report-note"></p>
+      </section>
+      <section class="panel" id="cmd-panel" aria-labelledby="run-title">
+        <h2 id="run-title">Check your work</h2>
+        <div class="cmds" id="cmds"></div>
+        <ul class="side-links" id="side-links"></ul>
+      </section>
+      <section class="panel" id="guide-panel" aria-labelledby="guides-title" hidden>
+        <h2 id="guides-title">Guides</h2>
+        <ul class="side-links" id="guide-links"></ul>
+      </section>
+    </aside>
+  </div>
+  <nav class="pager" id="pager" aria-label="Other projects"></nav>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made in Nairobi. Every name and record in the course is made up.</span>
+    <span>Progress is saved only in this browser.</span>
+  </div>
+</footer>
+<a class="to-top" href="#top" aria-label="Back to top">↑</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/18.0.13/lib/marked.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script src="assets/course.js"></script>
+<script src="assets/progress.js"></script>
+<script src="assets/lesson.js"></script>
+</body>
+</html>

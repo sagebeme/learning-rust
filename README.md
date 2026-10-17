@@ -126,6 +126,19 @@ It runs each project's tests and clippy, without changing your code, and lists e
 2. **Review:** from 0x03 on, each project has a `review/` folder with a pull request that has problems planted in it. Write the review you'd leave, then compare it with the answer key. On TWA you'll review more code than you write.
 3. **Explain:** a short note, written for an HR or training manager, explaining one decision from that week. No jargon. This is practice for client meetings.
 
+## The course website
+
+The same course as a website: a departures board where each project is a flight, every README rendered with a checklist beside it, and the guides. It's plain static files in `site/`, reading the READMEs straight from this repo.
+
+```bash
+cargo xtask progress           # optional: lets the site tick tasks from your tests
+python3 -m http.server 8000    # from the course folder
+```
+
+Then open <http://localhost:8000/site/>. Served like this, the site reads `progress.json` by itself. On a hosted copy, use **Load progress.json** instead. Either way, progress stays in your browser.
+
+The project list it uses, `site/assets/course.js`, is generated: after adding or renaming a project, task or guide, run `cargo xtask site-data` and commit the result (CI checks it's up to date). `netlify.toml` and `vercel.json` publish it with no build step.
+
 ## Guides you'll come back to
 
 - [Resources](docs/resources.md): every book, tutorial and documentation page the course uses, by topic, with links

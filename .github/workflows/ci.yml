@@ -36,6 +36,9 @@ jobs:
       - name: Starter code is formatted
         run: cargo fmt --all --check
 
+      - name: The course site's project list is up to date
+        run: cargo xtask site-data --check
+
       - name: Every task has tests that fail on its starter
         run: cargo xtask check-starters
 

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Rust · TWA ground school</title>
+<meta name="description" content="An 8-week, project-based Rust course for the developer building TWA, a training and qualification platform for aviation ground handling in Nairobi.">
+<meta name="theme-color" content="#111111">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body id="top">
+<a class="skip" href="#board">Skip to the departures board</a>
+
+<nav class="navbar" aria-label="Main">
+  <div class="container">
+    <a class="brand" href="index.html" aria-current="page">
+      <span class="pict" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
+      <span>Learning Rust<small>TWA ground school</small></span>
+    </a>
+    <ul class="nav-links">
+      <li class="keep"><a href="#board">Departures</a></li>
+      <li><a href="#story">The story</a></li>
+      <li><a href="#guides">Guides</a></li>
+      <li><a href="https://github.com/sagebeme/learning-rust">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div>
+      <p class="eyebrow" style="color:#5a3a00" id="counts">8 weeks · 15 projects</p>
+      <h1>Learning Rust <span class="arrow" aria-hidden="true">→</span></h1>
+      <p class="lede">A project-based course for the developer building TWA: the training and qualification platform for an aviation ground-handling company in Nairobi. Every exercise is the real job.</p>
+      <p class="resume" id="resume" hidden></p>
+      <div class="hero-actions">
+        <a class="btn btn-dark" id="cta" href="lesson.html?p=0x00-hello-cargo">Start at 0x00 →</a>
+        <a class="btn btn-ghost" href="#board">See all flights</a>
+      </div>
+    </div>
+
+    <a class="pass" id="next-pass" href="lesson.html?p=0x00-hello-cargo" style="text-decoration:none" aria-label="Your next task">
+      <div class="pass-main">
+        <div class="pass-top"><span class="airline">TWA · Ground school</span><span>Boarding pass</span></div>
+        <div class="route" aria-hidden="true">NBO <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.5 19h19v2h-19v-2zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49L21 11.49c.81-.23 1.28-1.05 1.07-1.85z"/></svg> RUST</div>
+        <h2 id="next-title">Hello, Cargo</h2>
+        <dl class="fields">
+          <div><dt>Flight</dt><dd id="next-flight">0x00</dd></div>
+          <div><dt>Week</dt><dd id="next-week">1</dd></div>
+          <div><dt>Next task</dt><dd id="next-task">t00</dd></div>
+        </dl>
+      </div>
+      <div class="pass-stub">
+        <div class="seat">Gate<b id="next-gate">0x00</b></div>
+        <div class="barcode" aria-hidden="true"></div>
+      </div>
+    </a>
+  </div>
+</header>
+
+<section class="strip" aria-label="Your progress">
+  <div class="container">
+    <div class="stat">Mandatory<b id="stat-mandatory">0 / 0</b></div>
+    <div class="stat">Advanced<b id="stat-advanced">0 / 0</b></div>
+    <div class="stat">Projects departed<b id="stat-projects">0 / 15</b></div>
+    <div class="grow">
+      <div class="meter" role="progressbar" aria-label="Mandatory tasks done" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="meter"><span id="bar"></span></div>
+      <p class="source" id="source">Tick tasks off as you go, or let <code>cargo xtask progress</code> check them for you.</p>
+    </div>
+    <label class="btn btn-small file-btn">Load progress.json<input type="file" id="import" accept=".json,application/json"></label>
+  </div>
+</section>
+
+<main>
+  <section class="section" id="board" tabindex="-1">
+    <div class="container">
+      <div class="board">
+        <div class="board-head">
+          <h2><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 19h19v2h-19v-2zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49L21 11.49c.81-.23 1.28-1.05 1.07-1.85z"/></svg>Departures</h2>
+          <div class="board-clock" aria-hidden="true"><span id="clock">--:--</span><small>Nairobi</small></div>
+        </div>
+        <table>
+          <caption class="sr-only">Every project, by week, with how many tasks you've done</caption>
+          <thead>
+            <tr><th scope="col">Flight</th><th scope="col">Destination</th><th scope="col" class="col-gate">Gate</th><th scope="col" class="col-tasks">Tasks</th><th scope="col">Status</th></tr>
+          </thead>
+          <tbody id="flights"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="story" style="padding-top:8px">
+    <div class="container">
+      <p class="eyebrow">The story</p>
+      <h2>Can Amina move to cargo?</h2>
+      <div class="story">
+        <div class="panel card">
+          <h3>One question, eight weeks</h3>
+          <p><strong>Amina Wanjiru</strong> is a ramp agent at the Nairobi station. She wants to move to cargo handling. Can she start? What's missing? Who needs to be told, and when?</p>
+          <p>Every project answers a piece of that question, with fake data from TWA's world: staff, stations, licences and expiry dates. By week 8 you run a small TWA yourself: a server that answers HR's transfer question, and a 06:00 job that reminds Amina a week before her certificate expires.</p>
+          <p style="margin:0">Weeks 5–7 run the rules engine you build in week 4. If yours isn't finished, they use a ready-made one, so you're never blocked.</p>
+        </div>
+        <div class="panel card">
+          <h3>Flight plan</h3>
+          <ol class="timeline" id="timeline"></ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:8px">
+    <div class="container">
+      <p class="eyebrow">Each week</p>
+      <h2>Three kinds of work</h2>
+      <p class="lead">On TWA you'll review more code than you write, and you'll explain your decisions to people who don't write code at all. The course practises all three.</p>
+      <div class="rhythm">
+        <div class="panel card"><div class="num">1</div><h3>Build</h3><p>Small numbered tasks, each starting as <code>todo!()</code>, with a strict checker: the tests, and clippy with warnings as errors.</p></div>
+        <div class="panel card"><div class="num">2</div><h3>Review</h3><p>From 0x03, a pull request with problems planted in it. Write the review you'd leave, then compare it with the answer key.</p></div>
+        <div class="panel card"><div class="num">3</div><h3>Explain</h3><p>A short note for an HR or training manager about one decision from the week. No jargon: practice for client meetings.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="check" style="padding-top:8px">
+    <div class="container two">
+      <div>
+        <p class="eyebrow">From your terminal</p>
+        <h2>Let Cargo tick the boxes</h2>
+        <p>Run <code>cargo xtask progress</code> in the course folder. It runs every project's tests and clippy, without changing your code, and prints where each task stands. It also saves <code>progress.json</code>.</p>
+        <p>Serve the course folder and this board updates by itself:</p>
+        <div class="cmds" id="serve-cmds"></div>
+        <p class="side-note">Then open <code>http://localhost:8000/site/</code>. On the hosted site, use <strong>Load progress.json</strong> instead. Progress stays in your browser either way.</p>
+      </div>
+      <div class="terminal" aria-label="Example output of cargo xtask progress"><span class="p">$</span> cargo xtask progress 0x01
+0x01 Values and control flow — 3 of 6 done
+  <span class="ok">[x]</span> t00   What a licence countdown means
+  <span class="ok">[x]</span> t01   A staff number's check digit
+  [ ] t02   Total hours, without overflowing   <span class="dim">to do</span>
+  <span class="bad">[!]</span> t03   The four-day shift cycle           <span class="bad">0 of 2 tests pass</span>
+  <span class="warn">[~]</span> t04   The duty board                     <span class="warn">tests pass, clippy has 1 warning(s)</span>
+  <span class="ok">[x]</span> t100  Minutes as a clock reading (advanced)
+
+Mandatory tasks: 2 of 5 done. Advanced: 1 of 1.
+Saved to progress.json</div>
+    </div>
+  </section>
+
+  <section class="section" id="guides" style="padding-top:8px">
+    <div class="container">
+      <p class="eyebrow">Information desk</p>
+      <h2>Guides you'll come back to</h2>
+      <ul class="guides" id="guide-list"></ul>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <span>Made in Nairobi. Every name and record in the course is made up.</span>
+    <span>Progress is saved only in this browser. <a href="https://github.com/sagebeme/learning-rust">The course on GitHub</a></span>
+  </div>
+</footer>
+<a class="to-top" href="#top" aria-label="Back to top">↑</a>
+
+<script src="assets/course.js"></script>
+<script src="assets/progress.js"></script>
+<script src="assets/home.js"></script>
+</body>
+</html>
