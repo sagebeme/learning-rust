@@ -137,7 +137,12 @@ python3 -m http.server 8000    # from the course folder
 
 Then open <http://localhost:8000/site/>. Served like this, the site reads `progress.json` by itself. On a hosted copy, use **Load progress.json** instead. Either way, progress stays in your browser.
 
-The project list it uses, `site/assets/course.js`, is generated: after adding or renaming a project, task or guide, run `cargo xtask site-data` and commit the result (CI checks it's up to date). `netlify.toml` and `vercel.json` publish it with no build step.
+The project list it uses, `site/assets/course.js`, is generated: after adding or renaming a project, task or guide, run `cargo xtask site-data` and commit the result (CI checks it's up to date). `netlify.toml` and `vercel.json` publish it with no build step, and send the site's root address to `/site/`:
+
+- **Netlify:** Add new site → Import an existing project → GitHub → `learning-rust` → Deploy. The settings come from `netlify.toml`.
+- **Vercel:** Add New → Project → import `learning-rust` → leave Framework as "Other" → Deploy. The settings come from `vercel.json`.
+
+Every push to `main` redeploys it.
 
 ## Guides you'll come back to
 
