@@ -1,0 +1,50 @@
+# Publishes the course website to GitHub Pages, at https://sagebeme.github.io/learning-rust/:
+# the site/ folder, each project's README and the guides in docs/, nothing else.
+# Pages must be set to "GitHub Actions" (Settings → Pages → Build and deployment → Source).
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; a deploy already running is allowed to finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Put the website together
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install the toolchain from rust-toolchain.toml
+        run: rustup show
+
+      - name: The course site's project list is up to date
+        run: cargo xtask site-data --check
+
+      - name: Build the site folder
+        run: tools/build-pages.sh _site
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    name: Publish to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}site/
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

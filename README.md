@@ -143,6 +143,7 @@ The project list it uses, `site/assets/course.js`, is generated: after adding or
 
 - **Netlify:** Add new site → Import an existing project → GitHub → `learning-rust` → Deploy. The settings come from `netlify.toml`.
 - **Vercel:** Add New → Project → import `learning-rust` → leave Framework as "Other" → Deploy. The settings come from `vercel.json`.
+- **GitHub Pages:** the site is published at <https://sagebeme.github.io/learning-rust/> by `.github/workflows/pages.yml`. It only works once Pages is set to deploy from Actions: **Settings → Pages → Build and deployment → Source: GitHub Actions**. The workflow checks the project list is up to date, then `tools/build-pages.sh` copies `site/`, the project READMEs and the guides into `_site/` (nothing else from the repo is published). Every path the site uses is relative, so it works under the `/learning-rust/` subpath. To try the same build locally: `tools/build-pages.sh /tmp/pages/learning-rust && python3 -m http.server -d /tmp/pages 8000`, then open <http://localhost:8000/learning-rust/>.
 
 Every push to `main` redeploys it.
 
