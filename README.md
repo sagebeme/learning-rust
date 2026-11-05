@@ -176,3 +176,10 @@ CI proves both halves of every task, so you can trust a red or green result:
 - [ ] Week 6: 0x0B
 - [ ] Week 7: 0x0C, 0x0D
 - [ ] Week 8: 0x0E, and the client demo
+
+## Licence
+
+The course has two licences, one for the code and one for the lessons:
+
+- **Code** (starters, solutions, tests, tools and the website's code): [MIT](LICENSE). Use it for anything, including commercial work, as long as the copyright notice stays in.
+- **Lessons** (the Markdown lesson text and the images that go with it): [Creative Commons Attribution-NonCommercial 4.0](https://creativecommons.org/licenses/by-nc/4.0/) (CC BY-NC 4.0), full text in [LICENSE-LESSONS](LICENSE-LESSONS). You can copy, share and adapt them, as long as you credit **Sage**, link back here, and don't use them commercially (for example, selling them or a course built from them). For any other use, ask first.
