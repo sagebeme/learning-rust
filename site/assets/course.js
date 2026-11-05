@@ -38,6 +38,10 @@ window.RS_COURSE = {
       "title": "Resources"
     },
     {
+      "path": "docs/setup.md",
+      "title": "Setting up your machine"
+    },
+    {
       "path": "docs/templates/architecture.md",
       "title": "TWA architecture"
     },

@@ -44,6 +44,8 @@ You don't need to know C, memory management or any systems programming. The cour
 
 ### What you need installed
 
+Step by step for Linux, macOS, Windows and WSL, with a troubleshooting list: **[Setting up your machine](docs/setup.md)**. In short:
+
 | You need | Check you have it | If it's missing |
 | --- | --- | --- |
 | **Rust** (week 1 onwards) | `rustc --version` and `cargo --version` print versions | Install from [rustup.rs](https://rustup.rs/). See the Windows note below |
@@ -146,6 +148,7 @@ Every push to `main` redeploys it.
 
 ## Guides you'll come back to
 
+- [Setting up your machine](docs/setup.md): installing Rust, the pinned version, rust-analyzer, Tauri's and Postgres's extras, and fixes for the usual install problems
 - [Resources](docs/resources.md): every book, tutorial and documentation page the course uses, by topic, with links
 - [Common compiler errors](docs/common-errors.md): E0382, E0502 and the other errors the course leads you into, each with a tiny example and the usual fixes
 - [Glossary](docs/glossary.md): TWA words, Rust words and working words, in plain language
