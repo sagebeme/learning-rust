@@ -73,6 +73,132 @@ Open [`review/README.md`](review/README.md): a PR that models qualifications wit
 
 A training manager asks: *"What's the difference between 'expired' and 'in grace'? Can someone in grace work?"* Write the answer you'd give, in three sentences, and say who decides how long the grace period is. (It isn't you: it's a business rule. Find out who owns it at TWA.)
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a scratch file.
+
+1. **What prints, and what does the compiler warn about?**
+
+   ```rust
+   enum Status {
+       Valid { days_left: u32 },
+       Expired,
+   }
+
+   fn describe(status: &Status) -> String {
+       match status {
+           Status::Valid { days_left } => format!("valid for {days_left} days"),
+           Status::Valid { days_left: 1 } => "valid for 1 day".to_string(),
+           Status::Expired => "expired".to_string(),
+       }
+   }
+
+   fn main() {
+       println!("{}", describe(&Status::Valid { days_left: 1 }));
+   }
+   ```
+
+2. **Will this compile?**
+
+   ```rust
+   mod catalogue {
+       pub struct QualificationType {
+           code: String,
+           months: u32,
+       }
+
+       impl QualificationType {
+           pub fn new(code: &str, months: u32) -> Option<QualificationType> {
+               if code.is_empty() || months == 0 {
+                   None
+               } else {
+                   Some(QualificationType { code: code.to_string(), months })
+               }
+           }
+       }
+   }
+
+   fn main() {
+       let _q = catalogue::QualificationType { code: String::new(), months: 0 };
+   }
+   ```
+
+3. **Will this compile?**
+
+   ```rust
+   fn city(code: String) -> &'static str {
+       match code {
+           "NBO" => "Nairobi",
+           _ => "unknown",
+       }
+   }
+   ```
+
+4. **What prints?**
+
+   ```rust
+   fn parse(line: &str) -> Option<(u32, String)> {
+       let mut fields = line.split(',');
+       let number = fields.next()?.trim().parse().ok()?;
+       let code = fields.next()?.trim().to_string();
+       Some((number, code))
+   }
+
+   fn main() {
+       println!("{:?}", parse("48213, DG"));
+       println!("{:?}", parse("-5, DG"));
+       println!("{:?}", parse("48213"));
+   }
+   ```
+
+5. **Will this compile?**
+
+   ```rust
+   #[derive(Debug, Clone, Copy)]
+   struct Staff {
+       number: u32,
+       name: String,
+   }
+   ```
+
+6. **Why** is `Valid { days_left }` / `Expired` better than a struct with `is_valid: bool, is_expired: bool, days_left: u32`? Name one nonsense value the struct allows.
+
+<details>
+<summary>Answers</summary>
+
+1. It prints `valid for 1 days`, and the compiler warns `unreachable pattern` on the second arm. Arms are tried top to bottom, and the first one already matches every `Valid`. Put the specific `days_left: 1` arm first, as task 2 says.
+2. No: error `E0451`, fields `code` and `months` of struct `QualificationType` are private. Outside the module the only way in is `new`, which refuses an empty code and zero months. That's task 3's whole point.
+3. No: error `E0308`, mismatched types: the patterns are `&str` and `code` is a `String`. Match on `code.as_str()`.
+4. `Some((48213, "DG"))`, `None`, `None`. `"-5"` doesn't parse as a `u32`, so `.ok()?` returns `None`. `"48213"` has no second field, so the second `.next()?` returns `None`.
+5. No: error `E0204`, the trait `Copy` cannot be implemented for this type. A `String` owns heap memory, so copying the bytes of the struct would give two owners of the same text. Drop `Copy` and keep `Clone`, which makes the copy explicit.
+6. With the enum, only real states exist, each with only the data that makes sense, and `match` makes you handle every one. The struct allows `is_valid: true, is_expired: true`, or an expired qualification with 200 `days_left`, and every function has to guess what those mean.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, and write your tests in `tests/on_your_own.rs`.
+
+**The brief.** Staff can ask to swap a shift. A request is pending (with the day it was made), approved (with who approved it), rejected (with a reason), or withdrawn. Model it so a request can't be approved *and* rejected, can't be approved without a name, and can't be rejected without a reason. Then give it the operations a supervisor needs:
+
+- `ShiftCode::new(code: &str) -> Result<ShiftCode, ...>`: a shift code is two upper-case letters and a digit, like `"AM1"`
+- `SwapRequest::new(shift: ShiftCode, requested_on: u32)`
+- `approve(self, by: &str)`, `reject(self, reason: &str)`, `withdraw(self)`: each returns the new request or an error saying why that change isn't allowed (only a pending request can change)
+- `is_open(&self) -> bool` and `describe(&self) -> String`, for example `"AM1: approved by Wanjiku"`
+
+**Constraints**
+
+- No `bool` fields and no status strings: the state is an `enum` with data in its variants.
+- Fields are private, so the only way to make a request or a shift code is through the checked functions.
+- Every `match` lists its variants: no `_` arm, so adding a state later shows every place to update.
+- Empty names and reasons are refused.
+
+**Done when**
+
+- Tests cover each allowed change, each refused change (approving a withdrawn request, for example) and each bad shift code
+- `cargo test -p structs-enums-match --test on_your_own` passes and clippy prints nothing
+- You can name one bug your design makes impossible that a version with flags would allow
+
 ## Checkpoint
 
 - `cargo test -p structs-enums-match` passes and clippy is clean

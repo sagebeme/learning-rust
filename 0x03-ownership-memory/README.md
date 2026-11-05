@@ -81,6 +81,99 @@ Open [`review/README.md`](review/README.md). It shows five bugs from your own AL
 
 In your notes, write three or four sentences for a non-technical training manager: *"Why is Rust a safer choice than C for the system that decides whether a staff member is allowed to work?"* No jargon: no "borrow checker", no "memory safety". Talk about the kind of mistake it prevents.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a scratch file.
+
+1. **Will this compile?**
+
+   ```rust
+   fn main() {
+       let name = String::from("Amina");
+       let badge = name;
+       println!("{name} {badge}");
+   }
+   ```
+
+2. **Will this compile?**
+
+   ```rust
+   fn main() {
+       let mut codes = vec![String::from("DG"), String::from("FIRE")];
+       let first = &codes[0];
+       codes.push(String::from("AVSEC"));
+       println!("{first}");
+   }
+   ```
+
+3. **Will this compile?**
+
+   ```rust
+   fn tidy(name: &str) -> &str {
+       let tidy = name.trim().to_uppercase();
+       &tidy
+   }
+   ```
+
+4. **What prints?**
+
+   ```rust
+   fn main() {
+       let line = String::from("  Amina Wanjiru ");
+       let trimmed = line.trim();
+       println!("{}", trimmed.as_ptr() == line[2..].as_ptr());
+       println!("{} {}", line.len(), trimmed.len());
+   }
+   ```
+
+5. **Will this compile?** It's the dedupe from task 3, written the obvious way.
+
+   ```rust
+   fn main() {
+       let mut codes = vec!["DG", "FIRE", "DG"];
+       codes.retain(|c| codes.iter().filter(|x| *x == c).count() == 1);
+       println!("{codes:?}");
+   }
+   ```
+
+6. **Why** does `badge_lines` in task 4 take `Vec<String>` instead of `&[String]`? What can the caller no longer do after calling it?
+
+<details>
+<summary>Answers</summary>
+
+1. No: error `E0382`, borrow of moved value `name`. `let badge = name;` moved the `String`, so `name` is no longer usable. Borrow it (`let badge = &name;`) or clone it if you really need two copies.
+2. No: error `E0502`, cannot borrow `codes` as mutable because it is also borrowed as immutable. `push` may move the whole list to a bigger block of memory, which would leave `first` pointing at freed memory. Print `first` before the `push`, or copy out what you need.
+3. No: error `E0515`, cannot return reference to local variable `tidy`. The `String` is freed when the function ends, so the reference would dangle. Return the `String` itself: `fn tidy(name: &str) -> String`.
+4. `true`, then `16 13`. `trim` returns a slice of the same memory, starting two bytes in: nothing is copied. The `String` is still 16 bytes long; the slice is 13.
+5. No: error `E0502` again. `retain` borrows `codes` mutably for the whole call, and the closure tries to read `codes` at the same time. That's why task 3 keeps a separate `HashSet` of codes already seen.
+6. The function owns the strings, so it can change them in place and hand them back without allocating new ones. The caller gave the `Vec` away: using it after the call is the "borrow of moved value" error from question 1. If the caller still needs it, it must pass a clone, which makes the cost visible.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, and write your tests in `tests/on_your_own.rs`.
+
+**The brief.** A small roster toolkit, one function for each kind of access:
+
+- `pub fn surnames(names: &[String]) -> Vec<&str>`: the last word of each name, borrowed from the input
+- `pub fn shout_all(names: &mut Vec<String>)`: every name in capitals, changed in place
+- `pub fn split_off_first(names: Vec<String>, n: usize) -> (Vec<String>, Vec<String>)`: the first `n` names and the rest, handed back as owned lists
+
+**Constraints**
+
+- `surnames` doesn't allocate any text: no `clone`, `to_string`, `to_owned` or `format!`. Names that are empty or only spaces are left out.
+- `shout_all` keeps the same `Vec`: the caller's list must still be the one they passed in.
+- `split_off_first` never clones a `String`, and an `n` bigger than the list gives everything first and an empty rest.
+- No `unwrap()`.
+
+**Done when**
+
+- A test proves each surname points into the input, by comparing `as_ptr()` like task 0's test does
+- A test checks `split_off_first` with `n` of 0, the list's length, and more than its length
+- `cargo test -p ownership-memory --test on_your_own` passes and clippy prints nothing
+- You can say, for each of the three signatures, who owns the names after the call
+
 ## Checkpoint
 
 - `cargo test -p ownership-memory` passes and clippy is clean
