@@ -76,6 +76,91 @@ Convert with `i64::from(x)`. It only exists where the conversion can never lose 
 
 A right-aligned triangle, like ALX's `print_triangle`, but returned as a `String`. `" ".repeat(n)` and `.join("\n")` keep it short.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a scratch file.
+
+1. **Will this compile?**
+
+   ```rust
+   mod pay {
+       fn overtime_hours(hours: u32) -> u32 {
+           hours.saturating_sub(40)
+       }
+
+       pub fn paid_hours(hours: u32) -> u32 {
+           hours + overtime_hours(hours)
+       }
+   }
+
+   fn main() {
+       println!("{}", pay::paid_hours(45));
+       println!("{}", pay::overtime_hours(45));
+   }
+   ```
+
+2. **What prints?**
+
+   ```rust
+   fn main() {
+       println!("{} {}", 300_i32 as u8, -1_i32 as u32);
+       println!("{} {}", 38_u32.saturating_sub(40), 45_u32.saturating_sub(40));
+   }
+   ```
+
+3. **Will this compile?**
+
+   ```rust
+   fn main() {
+       let a = i64::from(7_u32);
+       let b = u32::from(7_i64);
+       println!("{a} {b}");
+   }
+   ```
+
+4. **Spot the bug.** What do these three calls return, and which one is wrong for TWA's station codes?
+
+   ```rust
+   pub fn is_station_code(code: &str) -> bool {
+       code.chars().count() == 3 && code.chars().all(|c| c.is_uppercase())
+   }
+
+   // is_station_code("NBO"), is_station_code("ÉBO"), is_station_code("NB0")
+   ```
+
+5. **Why** can the tests inside `t02_weekly_pay.rs` call `overtime_hours`, when the tests in `tests/t02_weekly_pay.rs` can't?
+
+<details>
+<summary>Answers</summary>
+
+1. No: error `E0603`, function `overtime_hours` is private. `paid_hours` can call it because it's in the same module; `main` is outside. Delete the last line and it prints `50`.
+2. `44 4294967295`, then `0 5`. `as` doesn't check: 300 doesn't fit in a `u8`, so it keeps the low 8 bits (300 − 256 = 44), and −1 becomes the largest `u32`. `saturating_sub` stops at 0 instead of going below it.
+3. No: error `E0277`, the trait bound `u32: From<i64>` is not satisfied. `From` only exists where nothing can be lost, and an `i64` can be negative or too big. For that direction you'd use `u32::try_from(x)`, which returns a `Result`.
+4. `true`, `true`, `false`. `"ÉBO"` passes because `É` is an upper-case letter and three *characters*, but it isn't a station code. The rule is three upper-case *English* letters: check the bytes with `is_ascii_uppercase`, as task 0 says.
+5. Files in `tests/` are compiled as a separate crate that uses yours from the outside, so they see only `pub` items. A `#[cfg(test)] mod tests` inside the file is a child module, and child modules can see their parent's private items through `use super::...`.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`.
+
+**The brief.** Shift pay depends on the day: weekdays are paid at the normal rate, Saturdays at one and a half times, Sundays at double. Write `pub fn shift_pay_cents(hours: u32, rate_cents: u64, day: u32) -> Option<u64>`, where `day` is 0 for Monday through 6 for Sunday.
+
+**Constraints**
+
+- Money is whole cents in a `u64`. No floats anywhere.
+- Half a cent rounds down: 3 hours at 333 cents on a Saturday is 1,498 cents. Multiply before you divide.
+- `None` for a `day` above 6, for more than 24 hours, and for any calculation that would overflow (use the `checked_` methods).
+- At least two private helper functions, each with its own unit tests inside the file. Convert with `u64::from`, never `as`.
+- The public function is tested from `tests/on_your_own.rs`.
+
+**Done when**
+
+- `cargo test -p functions-modules` runs both your inside-the-file tests and `tests/on_your_own.rs`, and they pass
+- You have a test for each day type, the rounding case, each `None` case, and 0 hours
+- Clippy prints nothing
+
 ## Checkpoint
 
 - `cargo test -p functions-modules` passes, **including your own unit tests** for `overtime_hours`

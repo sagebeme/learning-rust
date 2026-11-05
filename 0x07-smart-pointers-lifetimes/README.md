@@ -86,6 +86,138 @@ Open [`review/README.md`](review/README.md): a PR that reaches for `clone`, `Rc<
 
 The training manager wants to add a rule: "Ramp supervisor requires Ramp, and Ramp requires Ramp supervisor." Explain in two sentences, without technical words, why the system refuses it and what they probably meant instead.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a scratch file.
+
+1. **Will this compile?**
+
+   ```rust
+   enum Rule {
+       Has(String),
+       All(Rule, Rule),
+   }
+   ```
+
+2. **What prints?**
+
+   ```rust
+   use std::rc::Rc;
+
+   fn main() {
+       let log = Rc::new(vec![String::from("DG expiring")]);
+       let a = Rc::clone(&log);
+       {
+           let b = Rc::clone(&log);
+           println!("{}", Rc::strong_count(&b));
+       }
+       println!("{}", Rc::strong_count(&log));
+       drop(a);
+       println!("{}", Rc::strong_count(&log));
+   }
+   ```
+
+3. **Will this compile?**
+
+   ```rust
+   use std::rc::Rc;
+   use std::thread;
+
+   fn main() {
+       let codes = Rc::new(vec!["DG", "FIRE"]);
+       let handle = thread::spawn(move || codes.len());
+       println!("{:?}", handle.join());
+   }
+   ```
+
+4. **Does this compile? What happens when it runs?**
+
+   ```rust
+   use std::cell::RefCell;
+
+   fn main() {
+       let log = RefCell::new(Vec::<String>::new());
+       let first = log.borrow();
+       log.borrow_mut().push(String::from("DG expiring"));
+       println!("{}", first.len());
+   }
+   ```
+
+5. **Will this compile?** If not, what one change to `starting_with`'s signature fixes it?
+
+   ```rust
+   struct NameIndex<'a> {
+       names: Vec<&'a str>,
+   }
+
+   impl<'a> NameIndex<'a> {
+       fn starting_with(&self, prefix: &str) -> Vec<&str> {
+           self.names.iter().copied().filter(|n| n.starts_with(prefix)).collect()
+       }
+   }
+
+   fn main() {
+       let text = String::from("Amina Brian Ali");
+       let found;
+       {
+           let index = NameIndex { names: text.split(' ').collect() };
+           found = index.starting_with("A");
+       }
+       println!("{found:?}");
+   }
+   ```
+
+6. **Spot the problem.** This gives the right total. Why is it no faster than doing the stations one after another?
+
+   ```rust
+   for station in stations {
+       let total = Arc::clone(&total);
+       handles.push(thread::spawn(move || {
+           let mut total = total.lock().unwrap();
+           for record in records_for(station) {
+               if record.is_current() {
+                   *total += 1;
+               }
+           }
+       }));
+   }
+   ```
+
+<details>
+<summary>Answers</summary>
+
+1. No: error `E0072`, recursive type `Rule` has infinite size. A `Rule` would contain a `Rule`, which contains a `Rule`... Use `All(Box<Rule>, Box<Rule>)`: a `Box` is a pointer with a fixed size.
+2. `3`, `2`, `1`. Each `Rc::clone` adds a handle to the same vector. `b` is dropped at the end of its block, `a` by `drop`, and the vector itself is freed when the last handle goes.
+3. No: error `E0277`, `Rc<Vec<&str>>` cannot be sent between threads safely. `Rc`'s counter isn't safe to change from two threads at once. Use `Arc`.
+4. It compiles, and panics when it runs: "RefCell already borrowed". `RefCell` checks the borrowing rules at run time instead of compile time, and `first` is still reading when `borrow_mut` asks to write. Drop `first` before writing.
+5. No: error `E0597`, `index` does not live long enough. With plain `Vec<&str>`, the results borrow from `&self`, the index, which is dropped at the end of the block. Return `Vec<&'a str>`: then they borrow from `text`, which is still alive, and it prints `["Amina", "Ali"]`. That's task 1's key detail.
+6. Each thread takes the lock *before* counting and holds it until it finishes, so only one thread can count at a time. Count into a local variable first, then lock once and add it, as task 3 says.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, and write your tests in `tests/on_your_own.rs`.
+
+**The brief.** Every staff member reports to a supervisor, up to the station manager, who reports to nobody. The data arrives as text, one person per line: `48213 Amina Wanjiru > 10007`, or `10001 Grace Achieng` for someone at the top. Build an `Org<'a>` from `&'a str` text, then answer:
+
+- `name(&self, staff: u32) -> Option<&'a str>`
+- `chain(&self, staff: u32) -> Result<Vec<u32>, OrgError>`: the person, their supervisor, theirs, up to the top
+- `reports_of(&self, supervisor: u32) -> Vec<u32>`: who reports directly to them, sorted
+
+**Constraints**
+
+- Names are `&'a str` slices of the input text: no `String` for names.
+- No `Rc`, `RefCell` or `Box`. Link people by staff number in a map, not by pointers.
+- `chain` returns an error for an unknown staff number, for a supervisor who isn't in the data, and for a loop (A reports to B, B reports to A). It must never loop forever.
+- A malformed line is an error that says which line.
+
+**Done when**
+
+- A test builds an `Org`, drops it, and still uses a name it returned (it borrows from the text, not the `Org`)
+- Tests cover a three-level chain, someone at the top, each error, and a loop of three people
+- `cargo test -p smart-pointers-lifetimes --test on_your_own` passes and clippy prints nothing
+
 ## Checkpoint
 
 - `cargo test -p smart-pointers-lifetimes` passes and clippy is clean

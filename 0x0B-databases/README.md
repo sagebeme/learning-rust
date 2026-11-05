@@ -119,6 +119,65 @@ Open [`review/README.md`](review/README.md): a repository module with SQL inject
 
 The training manager asks: *"If the Mombasa office and the Nairobi office both update the same person at the same moment, whose change wins?"* Explain in three sentences what the database guarantees, and which decision is still up to the app.
 
+## Check yourself
+
+Answer each one before you open the answers.
+
+1. **Spot the bug.** What happens when `station` is `NBO' OR '1'='1`?
+
+   ```rust
+   let sql = format!("SELECT staff_number, name FROM employees WHERE station = '{station}'");
+   let rows = sqlx::query(&sql).fetch_all(pool).await?;
+   ```
+
+2. **Will this compile?**
+
+   ```rust
+   async fn insert_employee() -> u64 {
+       1
+   }
+
+   fn import_roster() -> u64 {
+       insert_employee().await
+   }
+   ```
+
+3. **Why** does task 1's upsert only replace the stored record `WHERE holdings.completed_on < EXCLUDED.completed_on`? Describe what goes wrong without it.
+4. **Predict.** In task 3, the department `UPDATE` succeeds, then the audit `INSERT` fails and `?` returns the error before `tx.commit()`. What's in the database afterwards?
+5. **When does this fail: at compile time or at run time?** The struct derives `FromRow`, and the query is `SELECT e.name AS employee_name, h.code, h.valid_until FROM ...`, but the struct's field is called `name`.
+6. **Why** does the transfer read the current department with `SELECT ... FOR UPDATE` instead of a plain `SELECT`?
+
+<details>
+<summary>Answers</summary>
+
+1. The text becomes part of the SQL: `WHERE station = 'NBO' OR '1'='1'`, which is true for every row, so it returns every employee at every station. Worse inputs can change or delete data. Use `$1` and `.bind(station)`: the value is sent separately and is never read as SQL.
+2. No: error `E0728`, `await` is only allowed inside `async` functions and blocks. Make `import_roster` an `async fn` too, which is why every function in this project is `async`.
+3. Stations work offline and sync later. Without the condition, a delayed sync of Amina's *old* certificate would overwrite the renewal recorded since, and the engine would report her as expiring again. With it, the stored record never goes backwards.
+4. Nothing changed: the department is the old one and there's no audit row. Returning early drops `tx` without a commit, and dropping it rolls the transaction back. Both changes happen together or not at all.
+5. At run time. `sqlx::query_as` doesn't look at your SQL while compiling, so the mismatch shows up as a "column not found" error the first time the query runs (a test should catch it). The checked `query_as!` macro would catch it at compile time.
+6. `FOR UPDATE` locks that employee's row until the transaction ends. Without it, two transfers of the same person can both read "Ramp", both write, and the audit trail records two moves from Ramp when only one of them was true.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put the code in `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, the schema in a new migration `migrations/0003_sessions.sql` (0002 is the "Next steps" one), and your tests in `tests/on_your_own.rs` using `#[sqlx::test(migrations = "./migrations")]` like `tests/databases.rs`.
+
+**The brief.** Courses are taught in sessions: a qualification code, a station, a date and a number of seats. Staff book a seat. Write the two tables and `pub async fn book(pool: &PgPool, session_id: i32, staff_number: i32) -> Result<(), BookingError>`.
+
+**Constraints**
+
+- The schema enforces what it can: seats greater than 0, the station and the qualification code exist, and one booking per person per session (a primary key over both).
+- `BookingError` distinguishes: no such session, no such employee, already booked, and full. Map database errors as task 0 does; don't check-then-insert for the duplicate case.
+- Two people booking the last seat at the same moment can't both get it: lock the session row in a transaction while you count.
+- `$1` placeholders everywhere. No `format!` into SQL.
+
+**Done when**
+
+- Tests cover a good booking, each of the four errors, and a session filling up exactly
+- One test starts two bookings for the last seat together (`tokio::join!`) and checks exactly one succeeds
+- `cargo test -p databases --test on_your_own` passes with Postgres running, and clippy prints nothing
+
 ## Checkpoint
 
 - `cargo test -p databases` passes against a real Postgres, and clippy is clean

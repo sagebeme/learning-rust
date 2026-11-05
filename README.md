@@ -128,6 +128,8 @@ It runs each project's tests and clippy, without changing your code, and lists e
 2. **Review:** from 0x03 on, each project has a `review/` folder with a pull request that has problems planted in it. Write the review you'd leave, then compare it with the answer key. On TWA you'll review more code than you write.
 3. **Explain:** a short note, written for an HR or training manager, explaining one decision from that week. No jargon. This is practice for client meetings.
 
+Every project's README also ends with two things to do once the tasks pass. **Check yourself** is five or six questions (why, what prints, will this compile, spot the bug), with the answers folded away underneath. **On your own** is one exercise with a brief, constraints and a "done when" list, but no steps, no tests and no solution: it uses only what you've learned so far.
+
 ## The course website
 
 The same course as a website: a departures board where each project is a flight, every README rendered with a checklist beside it, and the guides. It's plain static files in `site/`, reading the READMEs straight from this repo.

@@ -107,6 +107,107 @@ Open [`review/README.md`](review/README.md): a set of Tauri commands with a secr
 
 The client's IT manager asks: *"If the app runs on staff phones, can someone tamper with it to mark themselves as qualified?"* Write your answer in four or five sentences: what the app is allowed to decide on its own, what only the server decides, and why.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a test file: `serde` and `serde_json` are dependencies of this project.
+
+1. **What prints?**
+
+   ```rust
+   use serde::Serialize;
+
+   #[derive(Serialize)]
+   #[serde(rename_all = "camelCase")]
+   struct GapRequest {
+       staff_number: u32,
+       valid_until: String,
+   }
+
+   fn main() {
+       let request = GapRequest { staff_number: 48213, valid_until: String::from("2026-11-01") };
+       println!("{}", serde_json::to_string(&request).unwrap());
+   }
+   ```
+
+2. **What prints?** The screen has a typo in its key.
+
+   ```rust
+   use serde::Deserialize;
+
+   #[derive(Debug, Deserialize)]
+   #[serde(rename_all = "camelCase")]
+   struct Loose {
+       staff_number: Option<u32>,
+   }
+
+   #[derive(Debug, Deserialize)]
+   #[serde(rename_all = "camelCase", deny_unknown_fields)]
+   struct Strict {
+       staff_number: Option<u32>,
+   }
+
+   fn main() {
+       let body = r#"{"staffNumbr": 48213}"#;
+       println!("{:?}", serde_json::from_str::<Loose>(body).map_err(|e| e.to_string()));
+       println!("{:?}", serde_json::from_str::<Strict>(body).map_err(|e| e.to_string()));
+   }
+   ```
+
+3. **Will this compile?**
+
+   ```rust
+   use serde::Serialize;
+
+   #[derive(Serialize)]
+   enum CommandError {
+       Io(std::io::Error),
+   }
+   ```
+
+4. **Spot the problem.** The answer is right. What does every other command experience while this one runs?
+
+   ```rust
+   fn gap_for(state: &AppState, staff_number: u32, today: NaiveDate) -> Result<GapReport, CommandError> {
+       let staff = state.lock_staff()?;
+       let person = staff.get(&staff_number).ok_or(CommandError::NotFound(staff_number))?;
+       let report = run_engine(&person.holdings, today)?; // slow
+       Ok(report)
+   }
+   ```
+
+5. **Why** does the Rust side check a completion date isn't in the future, when the screen's date picker already won't let you pick one?
+
+<details>
+<summary>Answers</summary>
+
+1. `{"staffNumber":48213,"validUntil":"2026-11-01"}`. `rename_all = "camelCase"` changes the names in the JSON; the Rust fields keep their `snake_case` names.
+2. `Ok(Loose { staff_number: None })`, then ``Err("unknown field `staffNumbr`, expected `staffNumber` at line 1 column 13")``. Without `deny_unknown_fields`, the typo is silently ignored and the staff number just goes missing. With it, the mistake is an error that names the field.
+3. No: error `E0277`, the trait bound `std::io::Error: serde::Serialize` is not satisfied. Many error types can't be serialized, and you wouldn't want their details on the screen anyway. That's why task 0 serializes a small `ErrorPayload` with a `kind` and a `message` instead.
+4. The lock is held while the engine runs, so every other command that needs the staff list waits for it. Copy the holdings out, let the guard drop (end its block, or `drop(staff)`), *then* call the engine, as task 4 does.
+5. The screen code runs in a web view and anyone can change what it sends: an old version of the app, a bug, or a person with the developer tools open. Rust is the side that decides, so it checks everything as if it came from the internet.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, and write your tests in `tests/on_your_own.rs`.
+
+**The brief.** The training office sometimes records a course against the wrong person. Add a command, `remove_holding`, that takes `{ "staffNumber": 48213, "code": "DG", "completedOn": "2025-11-01" }` and removes exactly that record from the app state, returning the person's updated summary. Then make it reachable: a capabilities entry for it, and an event the other screens can listen for.
+
+**Constraints**
+
+- The input struct uses `camelCase` and refuses unknown fields. An empty code is `invalid`.
+- An unknown person or a record that doesn't match exactly is `notFound`, with a message a person can act on. A poisoned lock is `busy`. Nothing panics.
+- Hold the lock only while you change the list.
+- Your task 3 checker accepts a capabilities file with `allow-remove-holding`, and rejects one where the permission is left over after the command is removed from the list.
+- A `holding-removed` event payload in `camelCase`, built like task 100's.
+
+**Done when**
+
+- Tests cover a successful removal, each error `kind` as JSON, an unknown field in the input, and the two capabilities cases
+- `cargo test -p tauri-core --test on_your_own` passes and clippy prints nothing
+- Your notes say who should be allowed to call this command, and where in TWA that rule would be enforced
+
 ## Checkpoint
 
 - `cargo test -p tauri-core` passes and clippy is clean

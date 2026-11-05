@@ -92,6 +92,96 @@ Open [`review/README.md`](review/README.md): a gap check that works on the autho
 
 Write the explanation of a gap report you'd give to a training manager, using case 2 from the fixtures file. Why can't this person start in Cargo, even though their DG certificate is "in grace"? What do they need to do, in what order? Three or four sentences, no code words.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a scratch file.
+
+1. **What prints?** It's task 2's sort key in miniature: rank, then `Reverse` of the date (written as a number here), then code.
+
+   ```rust
+   use std::cmp::Reverse;
+
+   fn main() {
+       let mut candidates = vec![
+           (1, Reverse(20261101), "DG"),
+           (0, Reverse(20260301), "DGX"),
+           (0, Reverse(20270101), "DGR"),
+       ];
+       candidates.sort();
+       println!("{:?}", candidates[0]);
+   }
+   ```
+
+2. **What prints?**
+
+   ```rust
+   use std::collections::BTreeSet;
+
+   fn main() {
+       let codes: BTreeSet<&str> = ["FORK", "AVSEC", "DG", "AVSEC"].into_iter().collect();
+       println!("{codes:?}");
+   }
+   ```
+
+3. **Spot the bug.** The rule is "days overdue up to `grace_days` is in grace". What do `in_grace(1, 30)`, `in_grace(29, 30)` and `in_grace(30, 30)` return, and which is wrong?
+
+   ```rust
+   fn in_grace(days_overdue: i64, grace_days: i64) -> bool {
+       days_overdue > 0 && days_overdue < grace_days
+   }
+   ```
+
+4. **What happens when this runs?** It's the shape of task 3, with a catalogue where DG requires FIRE and FIRE requires DG.
+
+   ```rust
+   use std::collections::BTreeMap;
+
+   fn is_met(code: &str, prerequisites: &BTreeMap<&str, Vec<&str>>, held: &[&str]) -> bool {
+       held.contains(&code)
+           && prerequisites[code].iter().all(|p| is_met(p, prerequisites, held))
+   }
+
+   fn main() {
+       let prerequisites = BTreeMap::from([("DG", vec!["FIRE"]), ("FIRE", vec!["DG"])]);
+       println!("{}", is_met("DG", &prerequisites, &["DG", "FIRE"]));
+   }
+   ```
+
+5. **Why** does task 1 check expiry before recency? Describe a licence for which the order changes the answer.
+6. **Why** keep whole transfer scenarios in `tests/fixtures/transfers.json` when every function already has unit tests?
+
+<details>
+<summary>Answers</summary>
+
+1. `(0, Reverse(20270101), "DGR")`. Tuples compare left to right: rank 0 beats rank 1, then `Reverse` makes the *later* date sort first, so DGR (2027) beats DGX (2026). The code only matters when both are tied. Input order makes no difference to the answer.
+2. `{"AVSEC", "DG", "FORK"}`. A `BTreeSet` drops the duplicate and keeps the rest sorted, which is task 4's dedupe-and-sort in one step.
+3. `true`, `true`, `false`. The last one is wrong: exactly 30 days overdue is still the last grace day. It should be `days_overdue <= grace_days`. This is the kind of boundary task 1's tests check one day either side of.
+4. It compiles, then crashes: "thread 'main' has overflowed its stack". DG checks FIRE, which checks DG, forever, until the program runs out of stack. That's why task 100 validates the catalogue once, at the edge, so the core can trust it.
+5. The first rule that applies decides, and the order is a business decision. A licence 10 days past its expiry, in its grace period, and also not used for 120 days is "in grace" with expiry first, but "lapsed" with recency first. Expiry is the more urgent fact for the person planning shifts, so it wins.
+6. Unit tests prove each piece; the fixtures prove the whole answer, as data any build can run. The app and the server run the same engine on different platforms, and the shared file is how you show they agree. When a client reports a wrong answer, their case goes in the file and stays there.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, and write your tests in `tests/on_your_own.rs`. Use `sample.rs` for data.
+
+**The brief.** The training office wants a calendar: over the next few weeks, on which days does someone's readiness for a role change, and to what? Write `pub fn readiness_changes(catalogue, matrix, department, role, holdings, from, to) -> Result<Vec<(NaiveDate, GapReport)>, EngineError>`: the first day (`from`) always, then every day in the range whose report differs from the day before. "Differs" means a requirement changed state (expiring soon to in grace, say); a day count going down by one isn't a change.
+
+**Constraints**
+
+- Build it only from your task 4 `gap_check` (and anything it uses). Don't copy rules into it.
+- Nothing reads the clock: `from` and `to` are parameters, and `to` before `from` returns an empty list.
+- Write a small function that compares two states while ignoring the day counts, and test it on its own.
+- The output is in date order and doesn't depend on the order of `holdings`.
+
+**Done when**
+
+- A test for Amina, Cargo Handler, from 19 October 2026 for 60 days, shows the day her dangerous goods requirement stops being expiring soon. Work out by hand, from the catalogue, which state it moves to and on which day, before you run it
+- A property test shuffles or reverses the holdings and gets the identical calendar
+- `cargo test -p rules-engine --test on_your_own` passes and clippy prints nothing
+- Add one of your calendar's days as a case in `tests/fixtures/transfers.json`
+
 ## Checkpoint: end of the foundations
 
 - `cargo test -p rules-engine` passes, including the fixtures and the property test, and clippy is clean

@@ -81,6 +81,103 @@ Open [`review/README.md`](review/README.md): your ALX hash-table bug, translated
 
 A station manager runs the same "expiring this month" report twice and the names come out in a different order. They ask if the system is broken. Write your answer in two or three sentences: what was happening, and what you changed so it can't happen again.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a scratch file.
+
+1. **What prints?** And what would change if it were a `HashMap`?
+
+   ```rust
+   use std::collections::BTreeMap;
+
+   fn main() {
+       let mut counts = BTreeMap::new();
+       for station in ["NBO", "MBA", "NBO", "KIS", "NBO"] {
+           *counts.entry(station).or_insert(0) += 1;
+       }
+       println!("{counts:?}");
+   }
+   ```
+
+2. **What prints, and in what order?**
+
+   ```rust
+   fn main() {
+       let hours = [8, 9, 7];
+       let doubled = hours.iter().map(|h| {
+           println!("doubling {h}");
+           h * 2
+       });
+       println!("before");
+       let total: i32 = doubled.sum();
+       println!("{total}");
+   }
+   ```
+
+3. **Will this compile?**
+
+   ```rust
+   fn main() {
+       let hours = [8, 9, 7];
+       let total = hours.iter().sum();
+       println!("{total}");
+   }
+   ```
+
+4. **Spot the bug.** `find(&[10, 20, 30], 20)` returns `Some(1)`. What happens with `find(&[10, 20, 30], 5)`, and with an empty slice?
+
+   ```rust
+   fn find(sorted: &[u32], target: u32) -> Option<usize> {
+       let mut left = 0;
+       let mut right = sorted.len() - 1;
+       while left <= right {
+           let middle = (left + right) / 2;
+           if sorted[middle] == target {
+               return Some(middle);
+           }
+           if sorted[middle] < target {
+               left = middle + 1;
+           } else {
+               right = middle - 1;
+           }
+       }
+       None
+   }
+   ```
+
+5. **Why** is `*counts.entry(key).or_insert(0) += 1` better than checking `contains_key` and then calling `get_mut` or `insert`?
+
+<details>
+<summary>Answers</summary>
+
+1. `{"KIS": 1, "MBA": 1, "NBO": 3}`. A `BTreeMap` keeps its keys sorted, so the output is the same every run. A `HashMap` would give the same counts in an order that can change from one run to the next, which is the bug in this project's review.
+2. `before`, then `doubling 8`, `doubling 9`, `doubling 7`, then `48`. Iterators are lazy: `map` only describes the work, and nothing runs until something like `sum` or `collect` asks for the values.
+3. No: error `E0283`, type annotations needed. `sum` can produce several types, and nothing says which one you want. Write `let total: i32 = ...` or `.sum::<i32>()`.
+4. With 5, the first `middle` is 0, `10 > 5`, and `right = 0 - 1` panics with "attempt to subtract with overflow" (in a release build it would wrap to a huge number). An empty slice panics even earlier, on `sorted.len() - 1`. That's your ALX bug. Searching `low..high` with `high = middle` never subtracts, as task 3 shows.
+5. It's one lookup instead of two, it reads as one idea ("find the slot or make it, then add one"), and it avoids fighting the borrow checker over holding a reference from `get_mut` while deciding to `insert`.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, and use `Holding` and `Station` from `src/model.rs`.
+
+**The brief.** Each station needs a minimum number of people holding certain qualifications: at least 3 with `DG`, at least 2 with `FIRE`, and so on. Write `pub fn coverage_gaps(holdings: &[Holding], needed: &[(&str, usize)]) -> BTreeMap<Station, Vec<(String, usize)>>`: for each station that's short, which codes are short and by how many.
+
+**Constraints**
+
+- Only holdings that are still valid count (`days_left` of 0 or more).
+- One person holding the same code twice counts once.
+- Stations with no gaps don't appear. Each station's list is sorted by code.
+- A station with no holdings at all is short of everything in `needed`, so check all four stations, not just the ones in the input.
+- No index loops (`for i in 0..`): iterators and the entry API. The same input must give the same output every run, in any order.
+
+**Done when**
+
+- Tests cover an expired holding, a duplicate holding, a station that's fine, and a station with nobody
+- One test reverses the input and checks the result is identical
+- `cargo test -p collections-iterators --test on_your_own` passes and clippy prints nothing
+
 ## Checkpoint
 
 - `cargo test -p collections-iterators` passes and clippy is clean

@@ -85,6 +85,99 @@ Open [`review/README.md`](review/README.md): a PR that loads station data with `
 
 An HR officer uploads a roster and the app says: `line 412: unknown station "LHR"`. Write the two-sentence explanation you'd give them of what happened and what to do. Then write the version a *bad* error message would have forced them to send to IT instead.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a scratch file.
+
+1. **Will this compile?**
+
+   ```rust
+   use std::fs;
+
+   fn main() {
+       let text = fs::read_to_string("roster.csv")?;
+       println!("{}", text.len());
+   }
+   ```
+
+2. **What prints?**
+
+   ```rust
+   fn main() {
+       println!("{:?}", "48213".parse::<u32>());
+       println!("{:?}", " 48213".parse::<u32>());
+       println!("{:?}", "-5".parse::<u32>());
+   }
+   ```
+
+3. **Will this compile?**
+
+   ```rust
+   #[derive(Debug)]
+   enum RosterError {
+       BadNumber(std::num::ParseIntError),
+   }
+
+   fn staff_number(field: &str) -> Result<u32, RosterError> {
+       let number = field.parse::<u32>()?;
+       Ok(number)
+   }
+   ```
+
+4. **What prints?** And if each line's error message uses `index` as its line number, what's wrong with the message for Brian?
+
+   ```rust
+   fn main() {
+       let text = "staff_number,name,station\n48213,Amina,NBO\n,Brian,MBA\n";
+       for (index, line) in text.lines().enumerate().skip(1) {
+           println!("{index}: {line}");
+       }
+   }
+   ```
+
+5. **Spot the bug.** It compiles, and the tests with a good file pass.
+
+   ```rust
+   fn load_roster(path: &Path) -> Result<Vec<StaffRecord>, RosterError> {
+       let text = fs::read_to_string(path).unwrap_or_default();
+       Ok(parse_roster(&text)?)
+   }
+   ```
+
+6. **Why** does task 3 write to a temporary file and rename it, instead of calling `fs::write` on the real file?
+
+<details>
+<summary>Answers</summary>
+
+1. No: error `E0277`, the `?` operator can only be used in a function that returns `Result` or `Option`. `main` returns `()`. Write `fn main() -> Result<(), std::io::Error>` and end with `Ok(())`, or handle the error with `match`.
+2. `Ok(48213)`, then `Err(ParseIntError { kind: InvalidDigit })` twice. `parse` doesn't trim: the space is an invalid digit. A `u32` can't be negative, so the `-` is invalid too. Trim fields before parsing them.
+3. No: error `E0277`, `?` couldn't convert the error to `RosterError`. `?` converts errors with `From`, and nothing says how to turn a `ParseIntError` into a `RosterError`. Write that `impl From`, add `#[from]` with thiserror, or use `.map_err(RosterError::BadNumber)?`.
+4. `1: 48213,Amina,NBO`, then `2: ,Brian,MBA`. `enumerate` counts from 0 and the header was index 0, so Brian's line is line 3 of the file but would be reported as line 2. The HR officer opens the file at the wrong line. Report `index + 1`, as task 1 does.
+5. A missing or unreadable file becomes an empty string, which parses as an empty roster. The app says "0 staff" instead of "could not read roster.csv", and nobody notices until someone isn't on the list. Return the read error, with the path: `.map_err(|source| RosterError::Read { path: path.to_path_buf(), source })?`.
+6. A power cut in the middle of `fs::write` can leave half a file, and the next start-up reads garbage. Writing a separate file, syncing it to the disk, then renaming it over the old one means anyone reading sees either the whole old file or the whole new one, never half of each.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, and write your tests in `tests/on_your_own.rs`. `tempfile` is already a dev-dependency, as in task 3's tests.
+
+**The brief.** TWA keeps its stations in a file, `stations.csv`, with the header `code,city,opened`. Write `pub fn load_stations(path: &Path) -> Result<Vec<StationRow>, StationError>`, where `StationRow` holds the code, the city and the year it opened. A wrong station list is worse than none, so the loader refuses the whole file at the first problem and says exactly what to fix.
+
+**Constraints**
+
+- Your own error type with `thiserror`. Every message includes the file line number (the header is line 1). A file that can't be read names its path.
+- Refuse: the wrong number of fields, a code that isn't three upper-case English letters, an empty city, a year that isn't a whole number between 1950 and 2100, and a code that appears twice. The duplicate message names both lines: `line 7: station "MBA" already appears on line 3`.
+- Blank lines are skipped; spaces around fields are trimmed.
+- No `unwrap`, `expect` or `panic!` outside tests.
+
+**Done when**
+
+- There's a test for each refusal that checks the exact message, and one for a good file
+- A test with a path that doesn't exist checks the path appears in the message
+- `cargo test -p errors-files-cli --test on_your_own` passes and clippy prints nothing
+- Your notes have the message an HR officer would see for a duplicate, and what they'd do about it
+
 ## Checkpoint
 
 - `cargo test -p errors-files-cli` passes and clippy is clean (no `unwrap` outside tests)
