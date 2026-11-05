@@ -82,6 +82,143 @@ Open [`review/README.md`](review/README.md): an expiry check with a hidden clock
 
 Ask the client (or write the question you *would* ask): *"Your Dangerous Goods certificate says 'valid 24 months'. Is that 24 months to the day, or to the end of the 24th month?"* Then write two sentences explaining to a training manager why the answer changes some staff members' expiry dates by up to 30 days.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it: `chrono` is already a dependency of this project, so a test file in `tests/` can use it.
+
+1. **What prints?**
+
+   ```rust
+   use chrono::{Months, NaiveDate};
+
+   fn main() {
+       let d = NaiveDate::from_ymd_opt(2024, 1, 31).unwrap();
+       println!("{}", d.checked_add_months(Months::new(1)).unwrap());
+       let leap = NaiveDate::from_ymd_opt(2024, 2, 29).unwrap();
+       println!("{}", leap.checked_add_months(Months::new(12)).unwrap());
+   }
+   ```
+
+2. **What prints?**
+
+   ```rust
+   use chrono::NaiveDate;
+
+   fn main() {
+       let today = NaiveDate::from_ymd_opt(2026, 10, 19).unwrap();
+       let expiry = NaiveDate::from_ymd_opt(2026, 11, 1).unwrap();
+       println!("{} {}", (expiry - today).num_days(), (today - expiry).num_days());
+   }
+   ```
+
+3. **Will this compile?** If not, how could you make it compile without writing `name` for every rule?
+
+   ```rust
+   trait ValidityRule {
+       fn valid_until(&self, completed_day: u32) -> u32;
+       fn name(&self) -> String;
+   }
+
+   struct FixedDays(u32);
+
+   impl ValidityRule for FixedDays {
+       fn valid_until(&self, completed_day: u32) -> u32 {
+           completed_day + self.0
+       }
+   }
+   ```
+
+4. **Will this compile?**
+
+   ```rust
+   trait Rule {
+       fn days(&self) -> u32;
+   }
+
+   struct Fixed(u32);
+
+   impl Rule for Fixed {
+       fn days(&self) -> u32 {
+           self.0
+       }
+   }
+
+   fn describe<R: Rule>(rule: &R) -> String {
+       format!("{} days", rule.days())
+   }
+
+   fn main() {
+       let rules: Vec<Box<dyn Rule>> = vec![Box::new(Fixed(30))];
+       for rule in &rules {
+           println!("{}", describe(rule.as_ref()));
+       }
+   }
+   ```
+
+5. **What prints?**
+
+   ```rust
+   use std::fmt;
+
+   struct Countdown(i64);
+
+   impl fmt::Display for Countdown {
+       fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+           match self.0 {
+               days if days > 1 => write!(f, "{days} days left"),
+               1 => write!(f, "1 day left"),
+               0 => write!(f, "expires today"),
+               days => write!(f, "expired {} days ago", -days),
+           }
+       }
+   }
+
+   fn main() {
+       println!("{} | {} | {}", Countdown(2), Countdown(1), Countdown(-3));
+       let text: String = Countdown(0).to_string();
+       println!("{text}");
+   }
+   ```
+
+6. **Why** do the rules take `today` as a parameter instead of reading the clock themselves?
+
+<details>
+<summary>Answers</summary>
+
+1. `2024-02-29`, then `2025-02-28`. There's no 31 February, so chrono clamps to the last day of the month; 2025 isn't a leap year, so 29 February becomes the 28th. Whether that's what a qualification body means is a business rule to confirm.
+2. `13 -13`. Subtracting dates gives a signed `TimeDelta`, so "days left" goes negative once the date has passed.
+3. No: error `E0046`, not all trait items implemented, missing `name`. Give the trait a default body, `fn name(&self) -> String { String::from("rule") }`, and types only write their own when they need to.
+4. No: error `E0277`, the size for values of type `dyn Rule` cannot be known at compilation time. A generic parameter must have a known size unless you say otherwise. Write `<R: Rule + ?Sized>` and it prints `30 days`, which is why task 3 uses `?Sized`.
+5. `2 days left | 1 day left | expired 3 days ago`, then `expires today`. Implementing `Display` once gives you both `{}` and `to_string()`. The guard arm `days if days > 1` is tried first, so 1 and 0 fall through to their own arms.
+6. Then the same input always gives the same answer. A test can ask about 29 February or the last day of a grace period without waiting for that date, and the app and the server can't disagree because their clocks differ.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, and write your tests in `tests/on_your_own.rs` (`proptest` is already a dev-dependency).
+
+**The brief.** Before a certificate expires, the training office sends a notice. Different qualification bodies want it at different times. Write a trait, `NoticeRule`, with `fn notice_on(&self, valid_until: NaiveDate) -> NaiveDate`, and three rules:
+
+- `DaysBefore(n)`: `n` calendar days before
+- `FirstOfMonthBefore(n)`: the first day of the month, `n` months before the expiry month
+- `WorkingDaysBefore(n)`: `n` working days before, skipping Saturdays and Sundays
+
+Then `pub fn earliest_notice(rules: &[Box<dyn NoticeRule>], valid_until: NaiveDate) -> Option<NaiveDate>`, and a `Display` for each rule ("10 working days before expiry").
+
+**Constraints**
+
+- `NaiveDate` only. Nothing reads the clock.
+- No `unwrap` outside tests: work out what your rule should do at the edge of chrono's date range, and say so in a comment.
+- `WorkingDaysBefore(0)` on a Saturday expiry is a decision: make one, and write it in a test name.
+
+**Done when**
+
+- Each rule has a table-driven test with at least one row at a month end, one in a leap year and one across a new year
+- A property test checks that no rule ever gives a date after `valid_until`
+- `cargo test -p traits-dates-testing --test on_your_own` passes and clippy prints nothing
+- Your notes have the question you'd ask the client to confirm one of the three rules
+
 ## Checkpoint
 
 - `cargo test -p traits-dates-testing` passes (including your own property) and clippy is clean
