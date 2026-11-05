@@ -97,4 +97,5 @@ The training manager wants to add a rule: "Ramp supervisor requires Ramp, and Ra
 - **"`Rc<...>` cannot be sent between threads safely"**: use `Arc` for anything shared with a thread.
 - **"already borrowed: BorrowMutError"** panic: you called `borrow_mut()` while another borrow was alive. Make the borrows shorter.
 - **"lifetime may not live long enough"** or "borrowed value does not live long enough": something you return or keep points at a value that's freed first. Check which input the `'a` connects to.
+- **An error code you don't recognise?** [Common compiler errors](../docs/common-errors.md) has a tiny example and the usual fixes for each, including [E0106, E0597 and E0373](../docs/common-errors.md#e0106-missing-lifetime-specifier).
 - **Still stuck?** Read `solution/`, close it, and write it again from memory.

@@ -147,6 +147,7 @@ Every push to `main` redeploys it.
 ## Guides you'll come back to
 
 - [Resources](docs/resources.md): every book, tutorial and documentation page the course uses, by topic, with links
+- [Common compiler errors](docs/common-errors.md): E0382, E0502 and the other errors the course leads you into, each with a tiny example and the usual fixes
 - [Glossary](docs/glossary.md): TWA words, Rust words and working words, in plain language
 - [How to review a pull request](docs/code-review-guide.md)
 - [Client meetings: turning requirements into rules](docs/client-meetings.md)
@@ -154,7 +155,7 @@ Every push to `main` redeploys it.
 
 ## Rules that keep you learning
 
-- **Read the compiler error before searching for it.** Rust's errors usually say exactly what's wrong and often suggest the fix. `rustc --explain E0382` gives the long version of any error code.
+- **Read the compiler error before searching for it.** Rust's errors usually say exactly what's wrong and often suggest the fix. `rustc --explain E0382` gives the long version of any error code. [Common compiler errors](docs/common-errors.md) has the ones you'll meet most.
 - **Use AI to explain, not to write.** Ask it what an error means, or why the borrow checker objects. Don't paste in code you couldn't explain line by line to your reviewer.
 - **Look at `solution/` last.** If you do, close it and write your own version from memory.
 - **Never run `cargo xtask apply-solutions`.** It's for CI, and it overwrites your `src/` with the reference solutions. To see the solutions pass without touching your work, run `cargo xtask verify-solutions`: it checks them in a copy under `target/`.

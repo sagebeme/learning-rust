@@ -21,6 +21,6 @@ For each one:
 | `e03_stray_semicolon.rs` | A semicolon turns a value into "nothing" |
 | `e04_used_after_move.rs` | A preview of ownership (0x03): a value can only have one owner |
 
-Error codes like `E0308` have a long explanation built in: `rustc --explain E0308`.
+Error codes like `E0308` have a long explanation built in: `rustc --explain E0308`. The course's [common compiler errors](../../docs/common-errors.md) page has a short example and the usual fixes for each error you'll meet, these four included.
 
 Done all four? Compare with `ANSWERS.md`.

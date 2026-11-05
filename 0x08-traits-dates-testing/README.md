@@ -92,4 +92,5 @@ Ask the client (or write the question you *would* ask): *"Your Dangerous Goods c
 - **"the trait bound `X: ValidityRule` is not satisfied"**: `X` has no `impl ValidityRule for X`, or you passed a `Box` where a reference was expected. Try `.as_ref()`.
 - **"the size for values of type `dyn ValidityRule` cannot be known"**: add `?Sized` to the generic bound, or put the trait object behind `&` or `Box`.
 - **A property test fails**: read the "minimal failing input" it prints, and turn it into a normal table row so it can never come back.
+- **An error code you don't recognise?** [Common compiler errors](../docs/common-errors.md) has a tiny example and the usual fixes for each, including [E0277](../docs/common-errors.md#e0277-the-trait-bound-is-not-satisfied--doesnt-implement).
 - **Still stuck?** Read `solution/`, close it, and write it again from memory.
