@@ -95,6 +95,112 @@ Open [`review/README.md`](review/README.md): a handler that blocks the runtime, 
 
 The client asks: *"What happens if 300 staff at JKIA all open the app at 6 a.m. when shifts change?"* Write four sentences on how the server handles many requests at once, and the one thing in the code that would make it fall over.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a test file: `tokio` is a dependency of this project.
+
+1. **What prints?** The last number is the time taken, in tenths of a second, rounded down.
+
+   ```rust
+   use std::time::{Duration, Instant};
+   use tokio::time::sleep;
+
+   #[tokio::main]
+   async fn main() {
+       let start = Instant::now();
+       let a = async {
+           sleep(Duration::from_millis(200)).await;
+           1
+       };
+       let b = async {
+           sleep(Duration::from_millis(200)).await;
+           2
+       };
+       let (x, y) = tokio::join!(a, b);
+       println!("{x} {y} {}", start.elapsed().as_millis() / 100);
+   }
+   ```
+
+2. **What prints, and in what order?**
+
+   ```rust
+   async fn ping() -> u32 {
+       println!("ping");
+       1
+   }
+
+   #[tokio::main]
+   async fn main() {
+       let reply = ping();
+       println!("before");
+       let n = reply.await;
+       println!("{n}");
+   }
+   ```
+
+3. **Will this compile?**
+
+   ```rust
+   use std::sync::{Arc, Mutex};
+   use std::time::Duration;
+
+   #[tokio::main]
+   async fn main() {
+       let count = Arc::new(Mutex::new(0));
+       let shared = Arc::clone(&count);
+       tokio::spawn(async move {
+           let mut n = shared.lock().unwrap();
+           tokio::time::sleep(Duration::from_millis(10)).await;
+           *n += 1;
+       })
+       .await
+       .unwrap();
+   }
+   ```
+
+4. **Spot the bug.** The handler works, and its test passes. What happens in production when 50 phones call it at once?
+
+   ```rust
+   async fn check_station(Path(code): Path<String>) -> Json<Report> {
+       std::thread::sleep(Duration::from_secs(2)); // wait for the provider to catch up
+       Json(build_report(&code))
+   }
+   ```
+
+5. **Why** does `ApiError::Internal` send the client only a generic message, when the real error would help whoever is debugging?
+6. **Why** compare bearer tokens in constant time, instead of with `==`?
+
+<details>
+<summary>Answers</summary>
+
+1. `1 2 2`. `join!` runs both futures at the same time, so the two 200 ms waits overlap: about 200 ms in total, not 400. Awaiting `a` and then `b` one after the other would print `1 2 4`.
+2. `before`, `ping`, `1`. Calling an `async fn` only builds a future; none of its body runs until it's awaited.
+3. No: "future cannot be sent between threads safely", because the `std::sync::MutexGuard` is held across an `.await`, and a guard isn't `Send`. That's the compiler catching the second freezing mistake from "Async in plain words". Finish with the lock before you await: lock, change, let the guard drop, then sleep.
+4. `std::thread::sleep` blocks the whole worker thread, not just this request, so every other request scheduled on that thread waits too. A few slow calls freeze the server. Use `tokio::time::sleep(...).await`, and `spawn_blocking` for heavy work that can't be made async.
+5. Internal details (SQL, file paths, library versions) help attackers map the system and mean nothing to the person using the app. Log the full detail on the server, where you can find it, and send a message the user can act on.
+6. `==` stops at the first character that differs, so a wrong guess that starts right takes slightly longer. Measured over many requests, that lets an attacker find the token one character at a time. A constant-time comparison takes the same time whatever matches.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, add your route in `app.rs`, and write your tests in `tests/on_your_own.rs` the way the task tests call the app without a network port.
+
+**The brief.** A supervisor's phone wants one person's upcoming expiries. Add `GET /employees/{staff_number}/expiring?on=2026-10-19&within=30`: every holding of theirs whose valid-until date, worked out by the engine, falls between `on` and `on + within` days, soonest first, as JSON.
+
+**Constraints**
+
+- Behind the same bearer-token check as every other route except `/health`.
+- `on` is required: the server never decides what "today" is. `within` defaults to 30 and can't be more than 365.
+- 404 for an unknown person, 422 for a bad date or a `within` out of range, all through your task 1 `ApiError`, with the same JSON body shape.
+- Copy what you need out of the `RwLock` and release it before calling the engine. No `.await` while holding a guard.
+
+**Done when**
+
+- Tests cover Amina's answer for 19 October 2026, a person with nothing expiring (an empty list, not an error), the default `within`, each error status, and a request without a token
+- `cargo test -p async-backend --test on_your_own` passes and clippy prints nothing
+- You've called it with `curl` against `cargo run -p async-backend`
+
 ## Checkpoint
 
 - `cargo test -p async-backend` passes and clippy is clean

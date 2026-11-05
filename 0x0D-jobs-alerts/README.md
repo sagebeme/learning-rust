@@ -92,6 +92,106 @@ Open [`review/README.md`](review/README.md): a daily job that sends duplicates, 
 
 The training manager asks: *"Last month two people said they got the same reminder three times, and one said they got none. What happened, and how do we know it won't happen again?"* Write the explanation you'd give, using what this project taught you, in five sentences or fewer.
 
+## Check yourself
+
+Answer each one before you open the answers. If you're not sure, try it in a test file: `chrono` and `tokio` are dependencies of this project.
+
+1. **What prints?**
+
+   ```rust
+   use chrono::{FixedOffset, TimeZone, Utc};
+
+   fn main() {
+       let nairobi = FixedOffset::east_opt(3 * 3600).unwrap();
+       let now = Utc.with_ymd_and_hms(2026, 10, 24, 22, 30, 0).unwrap();
+       println!("{}", now.with_timezone(&nairobi));
+       println!("{}", now.with_timezone(&nairobi).date_naive());
+   }
+   ```
+
+2. **Will this compile?** If it does, what does `error @` do, and what prints?
+
+   ```rust
+   #[derive(Debug)]
+   enum SendError {
+       Transient(String),
+       Permanent(String),
+   }
+
+   fn worth_reporting(result: Result<(), SendError>) -> Option<SendError> {
+       match result {
+           Ok(()) => None,
+           Err(error @ SendError::Permanent(_)) => Some(error),
+           Err(SendError::Transient(_)) => None,
+       }
+   }
+
+   fn main() {
+       println!("{:?}", worth_reporting(Err(SendError::Permanent(String::from("bad number")))));
+       println!("{:?}", worth_reporting(Err(SendError::Transient(String::from("timeout")))));
+   }
+   ```
+
+3. **What prints?** These are the waits before each retry.
+
+   ```rust
+   fn main() {
+       let delays: Vec<u64> = (0..4).map(|attempt| 1u64 << attempt).collect();
+       println!("{delays:?} {}", delays.iter().sum::<u64>());
+   }
+   ```
+
+4. **Spot the bug.** What happens to someone whose phone number is wrong, and to someone the provider couldn't reach because it was down?
+
+   ```rust
+   for alert in &planned {
+       let key = alert_key(alert);
+       if log.already_sent(&key) {
+           continue;
+       }
+       log.mark_sent(key);
+       let _ = sender.send(alert).await;
+   }
+   ```
+
+5. **Why** plan the alerts as plain data, in a function that sends nothing, before a separate step sends them?
+6. **Why** does a server in UTC, scheduling "06:00 every day", need to know it's for Nairobi, if Nairobi never changes its clocks?
+
+<details>
+<summary>Answers</summary>
+
+1. `2026-10-25 01:30:00 +03:00`, then `2026-10-25`. At 22:30 UTC it's already the next day in Nairobi. A job that takes "today" from the UTC date would plan for the wrong day: this is task 3's trap.
+2. Yes, it compiles (with warnings that the `String`s are never read) and prints `Some(Permanent("bad number"))`, then `None`. `error @ pattern` checks the pattern *and* keeps the whole value in `error`, so you can return it.
+3. `[1, 2, 4, 8] 15`. Each wait doubles, so four retries wait 15 seconds in total and a struggling provider gets breathing room.
+4. Both are marked as sent *before* the send, and the result is thrown away with `let _`. Neither person is ever told, and the job won't try again, because the log says it's done. Send first, mark only on success, and keep permanent failures for a person to fix.
+5. Planning is then pure: the same input always gives the same alerts, and it can be tested with no fake sender, no clock and no network. Sending is the part that's slow and can fail, so it's kept small, behind the `AlertSender` trait, where retries and the sent log live.
+6. "06:00" is a local time: in UTC it's 03:00, and the date can differ from the UTC date near midnight. Nairobi having no daylight saving makes it simpler (a `FixedOffset` is enough), not unnecessary. The rule still has to say whose 06:00 it means.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put it in this project as `src/on_your_own.rs` with `pub mod on_your_own;` in `src/lib.rs`, and write your tests in `tests/on_your_own.rs`.
+
+**The brief.** Station supervisors want one email every Monday at 07:00 Nairobi time listing everything at their station that expires in the next 14 days, instead of a stream of separate alerts. Write the three parts of a good job:
+
+- `next_digest_at(now: DateTime<Utc>) -> DateTime<Utc>`: the next Monday 07:00 in Nairobi, in UTC
+- `plan_digests(...)`: pure, from expiring items and supervisors to one digest per supervisor with anything to report
+- `run_digests(...)`: sends through an `AlertSender`, skipping digests already in a `SentLog`
+
+**Constraints**
+
+- The key for "the same digest" is the supervisor and the Monday's date, so running twice in one week sends nothing new, and next week sends again.
+- A supervisor with nothing expiring gets no digest. Items in a digest are sorted by date, then staff number.
+- Record a key only after its send succeeded. Retry transient failures with your task 2 `retry`; don't retry permanent ones.
+- Nothing reads the clock: `now` is always a parameter.
+
+**Done when**
+
+- `next_digest_at` is tested on a Monday at 06:59 and 07:00 Nairobi time, and on Sunday at 22:30 UTC
+- Tests with a fake sender show: a second run sends nothing, a failed send is retried next run, a permanent failure isn't retried
+- `cargo test -p jobs-alerts --test on_your_own` passes (with Tokio's clock paused) and clippy prints nothing
+
 ## Checkpoint
 
 - `cargo test -p jobs-alerts` passes and clippy is clean

@@ -79,6 +79,68 @@ Use [docs/client-meetings.md](../docs/client-meetings.md) to prepare and run a 3
 2. Walk through what happens at 06:00 every day: run `cargo run -p jobs-alerts --example morning_run` and show who gets told, how, and why running it twice sends nothing new.
 3. Ask the five open questions from the worksheet, and write the answers as rules plus fixtures cases.
 
+## Check yourself
+
+Answer each one before you open the answers.
+
+1. **What prints?** A first try at reading a dependency line in `t01_read_manifest.rs`:
+
+   ```rust
+   fn main() {
+       let line = r#"twa-engine = { path = "../engine-reference" }"#;
+       println!("{:?}", line.split_once('='));
+       let (name, _) = line.split_once('=').unwrap_or_default();
+       println!("{}", name == "twa-engine");
+   }
+   ```
+
+2. **Spot the problem.** A pull request adds `twa-db` to `twa-app-core`'s dependencies "so the app can show the latest records". Which of TWA's layer rules does it break, and what's the cost of letting it through?
+3. **Why** are the layer rules a test, when they're already drawn on the architecture diagram?
+4. **Sort these review comments** into blockers and suggestions:
+   - a. "This query puts the station name into the SQL with `format!`."
+   - b. "I'd call this `days_left` rather than `remaining`."
+   - c. "This handler holds the lock while it calls the engine."
+   - d. "Could this loop be an iterator chain?"
+5. **Turn this into a rule you could test:** the client says *"people should renew their certificates in good time"*. What do you ask, and what does the rule look like afterwards?
+6. **Why** does a decision record say what you *didn't* choose, and why?
+
+<details>
+<summary>Answers</summary>
+
+1. `Some(("twa-engine ", " { path = \"../engine-reference\" }"))`, then `false`. Both halves keep their spaces, so the name is `"twa-engine "` and the comparison fails. Trim both halves. A test with a real `Cargo.toml` line catches this straight away.
+2. `twa-app-core` may only depend on `twa-engine`: the app works offline from synced data and never talks to Postgres directly. Letting it through puts database credentials on staff phones, breaks the offline mode, and gives the app a second, different way to get records. Your `check_layers` should fail the build on it.
+3. A diagram doesn't stop anyone. "Just this once" changes are made under time pressure, and nobody checks the drawing. A test fails the build the moment the rule is broken, and it explains the rule to whoever broke it.
+4. Blockers: a (SQL injection) and c (it freezes every other request that needs the lock). Suggestions: b and d, which are about style. Say which is which, and give the reason with each comment.
+5. Ask: how long before expiry counts as "in good time" (30 days? 60?), does it differ by qualification, who is told, and what happens when they don't. Afterwards: "a DG certificate enters the warning window 60 days before it expires; the person is reminded at 60, 30, 7 and 1 days", with a fixtures case for someone on day 61 and day 60.
+6. So that someone joining in a year knows the other options were considered, and why they lost. Without it, they propose the rejected option again, or undo the decision without knowing what it was protecting.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution. Put your test in `tests/on_your_own.rs`, built on your task 0 and 1 functions and on how `tests/this_repo.rs` reads the workspace.
+
+**The brief.** The layer rules cover the course's own crates. Some rules are about outside crates too, and they matter as much: only the database layer talks to Postgres, and only the server runs a web framework. Write a test that checks, for every project in this repo:
+
+- only `0x0B-databases` depends on `sqlx`
+- only `0x0C-async-backend` depends on `axum`
+- nothing from weeks 1–5 (0x00 to 0x0A) or `engine-reference` depends on `tokio`
+
+Then write decision record 0005, explaining the rule in the format of `docs/decisions/`.
+
+**Constraints**
+
+- Extend your manifest reader instead of searching the file for a word: `sqlx` in a comment, or a crate called `sqlx-helpers`, isn't a dependency.
+- `[dependencies]` and `[dev-dependencies]` both count.
+- When the test fails, its message names the project, the crate, and the rule it broke.
+
+**Done when**
+
+- The test passes on this repo
+- Adding `tokio.workspace = true` to `0x0A-tauri-core/Cargo.toml` makes it fail with a message that says what to do (then take the line out again)
+- Unit tests for your reader cover a comment, a similar-looking crate name, and a dev-dependency
+- The decision record says what you'd do when a week-5 project genuinely needs async
+
 ## Checkpoint: the end of the course
 
 - `cargo test -p architecture-clients` passes, and clippy is clean
