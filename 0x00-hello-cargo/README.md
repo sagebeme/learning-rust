@@ -75,6 +75,84 @@ Once your test passes, write two sentences in your notes: where does the text of
 
 Four small files that don't compile, on purpose. See `errors/README.md`.
 
+## Check yourself
+
+Answer each one in your head or your notes before you open the answers. If you're not sure, try it: `rustc --edition 2024 scratch.rs` compiles a single file.
+
+1. **Why** does a function whose body is only `todo!()` compile, even though it promises to return a `String`?
+2. **What prints?**
+
+   ```rust
+   fn main() {
+       let short = String::from("Hi");
+       let long = "Karibu".repeat(1000);
+       println!("{} {}", std::mem::size_of_val(&short), std::mem::size_of_val(&long));
+       println!("{} {}", short.len(), long.len());
+   }
+   ```
+
+3. **Will this compile?** If not, what's the one-character fix?
+
+   ```rust
+   fn welcome(name: &str) -> String {
+       format!("Karibu, {name}!");
+   }
+   ```
+
+4. **What prints?**
+
+   ```rust
+   fn main() {
+       println!("{} {}", "É".len(), "É".chars().count());
+       println!("{}", std::mem::size_of::<char>());
+   }
+   ```
+
+5. **Spot the bug.** This works for `"Amina Wanjiru"`. Which inputs from task 100 break it, and how?
+
+   ```rust
+   fn initials(name: &str) -> String {
+       let mut out = String::new();
+       for part in name.split(' ') {
+           let first = part.chars().next().unwrap();
+           out.push(first);
+           out.push('.');
+       }
+       out
+   }
+   ```
+
+<details>
+<summary>Answers</summary>
+
+1. `todo!()` never returns: it panics. A value that can never exist is allowed to stand in for any type, so the compiler is satisfied, and you find out when the code runs ("not yet implemented"). That's why every task compiles before you've written anything.
+2. `24 24`, then `2 6000`. The `String` itself (pointer, length, capacity) is 24 bytes on a 64-bit machine, however long the text is. The text is on the heap, and `.len()` tells you how many bytes of it there are.
+3. No: error `E0308`, mismatched types, expected `String`, found `()`. The semicolon turns the `format!` into a statement, so the function returns nothing. Delete the semicolon (this is `errors/e03`).
+4. `2 1`, then `4`. `É` takes two bytes in UTF-8 but is one character. A `char` is always 4 bytes, so it can hold any Unicode character.
+5. Two spaces in a row (`"Amina  Wanjiru"`) give an empty piece, `.next()` returns `None`, and `unwrap()` panics. An empty string panics the same way. Lower-case names also stay lower-case. Use `split_whitespace()`, which skips the gaps, and `to_uppercase()`.
+
+</details>
+
+## On your own
+
+No steps, no tests given, no solution: this one is yours. Put it in this project as `src/on_your_own.rs`, add `pub mod on_your_own;` to `src/lib.rs`, and write your tests in `tests/on_your_own.rs`, copying the shape of the task tests next to it.
+
+**The brief.** Name badges for the ramp show the surname first, in capitals, then the other names as typed, then the station: `badge("Amina Wanjiru", "NBO")` returns `"WANJIRU, Amina · NBO"`. Write `pub fn badge(full_name: &str, station: &str) -> String`.
+
+**Constraints**
+
+- The last word of the name is the surname. Every other word stays as it was typed, in order, one space apart.
+- Extra spaces anywhere in the name don't change the result.
+- A one-word name is just that word in capitals: `"Baraka"` gives `"BARAKA · NBO"`.
+- A name that's empty or only spaces gives `"UNKNOWN · NBO"`.
+- No `unwrap()`, and no indexing into the string with `[..]`.
+
+**Done when**
+
+- `tests/on_your_own.rs` has at least five tests, one for each rule above plus a name with three words, and `cargo test -p hello-cargo --test on_your_own` passes
+- `cargo clippy -p hello-cargo -- -D warnings` prints nothing
+- Your notes say, in one sentence, where the text of the returned `String` lives
+
 ## Checkpoint
 
 You're done with 0x00 when:
