@@ -44,6 +44,8 @@ You don't need to know C, memory management or any systems programming. The cour
 
 ### What you need installed
 
+Step by step for Linux, macOS, Windows and WSL, with a troubleshooting list: **[Setting up your machine](docs/setup.md)**. In short:
+
 | You need | Check you have it | If it's missing |
 | --- | --- | --- |
 | **Rust** (week 1 onwards) | `rustc --version` and `cargo --version` print versions | Install from [rustup.rs](https://rustup.rs/). See the Windows note below |
@@ -141,12 +143,15 @@ The project list it uses, `site/assets/course.js`, is generated: after adding or
 
 - **Netlify:** Add new site → Import an existing project → GitHub → `learning-rust` → Deploy. The settings come from `netlify.toml`.
 - **Vercel:** Add New → Project → import `learning-rust` → leave Framework as "Other" → Deploy. The settings come from `vercel.json`.
+- **GitHub Pages:** the site is published at <https://sagebeme.github.io/learning-rust/> by `.github/workflows/pages.yml`. It only works once Pages is set to deploy from Actions: **Settings → Pages → Build and deployment → Source: GitHub Actions**. The workflow checks the project list is up to date, then `tools/build-pages.sh` copies `site/`, the project READMEs and the guides into `_site/` (nothing else from the repo is published). Every path the site uses is relative, so it works under the `/learning-rust/` subpath. To try the same build locally: `tools/build-pages.sh /tmp/pages/learning-rust && python3 -m http.server -d /tmp/pages 8000`, then open <http://localhost:8000/learning-rust/>.
 
 Every push to `main` redeploys it.
 
 ## Guides you'll come back to
 
+- [Setting up your machine](docs/setup.md): installing Rust, the pinned version, rust-analyzer, Tauri's and Postgres's extras, and fixes for the usual install problems
 - [Resources](docs/resources.md): every book, tutorial and documentation page the course uses, by topic, with links
+- [Common compiler errors](docs/common-errors.md): E0382, E0502 and the other errors the course leads you into, each with a tiny example and the usual fixes
 - [Glossary](docs/glossary.md): TWA words, Rust words and working words, in plain language
 - [How to review a pull request](docs/code-review-guide.md)
 - [Client meetings: turning requirements into rules](docs/client-meetings.md)
@@ -154,7 +159,7 @@ Every push to `main` redeploys it.
 
 ## Rules that keep you learning
 
-- **Read the compiler error before searching for it.** Rust's errors usually say exactly what's wrong and often suggest the fix. `rustc --explain E0382` gives the long version of any error code.
+- **Read the compiler error before searching for it.** Rust's errors usually say exactly what's wrong and often suggest the fix. `rustc --explain E0382` gives the long version of any error code. [Common compiler errors](docs/common-errors.md) has the ones you'll meet most.
 - **Use AI to explain, not to write.** Ask it what an error means, or why the borrow checker objects. Don't paste in code you couldn't explain line by line to your reviewer.
 - **Look at `solution/` last.** If you do, close it and write your own version from memory.
 - **Never run `cargo xtask apply-solutions`.** It's for CI, and it overwrites your `src/` with the reference solutions. To see the solutions pass without touching your work, run `cargo xtask verify-solutions`: it checks them in a copy under `target/`.

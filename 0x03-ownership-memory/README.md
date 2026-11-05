@@ -93,4 +93,5 @@ In your notes, write three or four sentences for a non-technical training manage
 - **"cannot borrow `x` as mutable because it is also borrowed as immutable"**: a reader still exists while you try to write. Finish reading first, or copy out what you need before you change anything.
 - **"missing lifetime specifier"**: you're returning a reference and the compiler can't tell which input it borrows from. Usually the fix is to make it clear there's only one input it could come from.
 - **"returns a value referencing data owned by the current function"**: you're returning a borrow of something that's about to be freed. Return the owned value instead.
+- **An error code you don't recognise?** [Common compiler errors](../docs/common-errors.md) has a tiny example and the usual fixes for each, including [E0382, E0499, E0502 and E0106](../docs/common-errors.md).
 - **Still stuck?** Read `solution/`, close it, and write it again from memory.

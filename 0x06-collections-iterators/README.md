@@ -91,4 +91,5 @@ A station manager runs the same "expiring this month" report twice and the names
 - **"cannot borrow `self.buckets` as mutable more than once"**: take one `&mut` to the chain (`let chain = &mut self.buckets[index];`) and work with that.
 - **`attempt to subtract with overflow`** in the binary search: you've rebuilt the ALX bug. Use the half-open range.
 - **A `collect()` that won't compile**: tell it what to build, with `let v: Vec<_> = ...collect();`
+- **An error code you don't recognise?** [Common compiler errors](../docs/common-errors.md) has a tiny example and the usual fixes for each, including [E0499](../docs/common-errors.md#e0499-cannot-borrow-as-mutable-more-than-once-at-a-time).
 - **Still stuck?** Read `solution/`, close it, and write it again from memory.

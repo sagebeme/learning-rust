@@ -83,4 +83,5 @@ A training manager asks: *"What's the difference between 'expired' and 'in grace
 - **"non-exhaustive patterns"**: a `match` is missing a variant. The error lists which.
 - **"field `name` of struct `QualificationType` is private"**: that's the point. Use the getter.
 - **"expected `&str`, found `String`" in a match**: match on `.as_str()`.
+- **An error code you don't recognise?** [Common compiler errors](../docs/common-errors.md) has a tiny example and the usual fixes for each, including [E0004 and E0599](../docs/common-errors.md#e0004-non-exhaustive-patterns).
 - **Still stuck?** Read `solution/`, close it, and write it again from memory.

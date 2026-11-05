@@ -10,6 +10,10 @@ window.RS_COURSE = {
       "title": "How to review a pull request"
     },
     {
+      "path": "docs/common-errors.md",
+      "title": "Common compiler errors"
+    },
+    {
       "path": "docs/decisions/0001-client-app.md",
       "title": "0001. Client app technology"
     },
@@ -32,6 +36,10 @@ window.RS_COURSE = {
     {
       "path": "docs/resources.md",
       "title": "Resources"
+    },
+    {
+      "path": "docs/setup.md",
+      "title": "Setting up your machine"
     },
     {
       "path": "docs/templates/architecture.md",

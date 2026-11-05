@@ -3,3 +3,9 @@
 *.pdb
 *.proptest-regressions
 /progress.json
+/_site
+
+# Local secrets: never commit them. An example file with placeholder values is fine.
+.env
+.env.*
+!.env.example
