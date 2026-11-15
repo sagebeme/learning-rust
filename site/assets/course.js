@@ -10,6 +10,10 @@ window.RS_COURSE = {
       "title": "How to review a pull request"
     },
     {
+      "path": "docs/coding-rules.md",
+      "title": "How we write code in this course"
+    },
+    {
       "path": "docs/decisions/0001-client-app.md",
       "title": "0001. Client app technology"
     },

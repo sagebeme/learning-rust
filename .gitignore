@@ -3,3 +3,8 @@
 *.pdb
 *.proptest-regressions
 /progress.json
+
+# Secrets: Day 0x0C reads TWA_TOKEN from the environment; keep any local .env out of git.
+.env
+.env.*
+!.env.example

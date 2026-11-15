@@ -86,7 +86,7 @@ cargo fmt --all                                       # format your code
 cargo clippy -p values-control -- -D warnings         # lint it
 ```
 
-A task is done when its tests pass **and** clippy prints nothing. CI runs the same checks against every `solution/`, with warnings treated as errors.
+A task is done when its tests pass **and** clippy prints nothing. CI runs the same checks against every `solution/`, with warnings treated as errors. Before your first task, read [How we write code in this course](docs/coding-rules.md): one page of habits (what "done" means, errors, tests, commits) that every task expects.
 
 ### Where am I?
 
@@ -146,6 +146,7 @@ Every push to `main` redeploys it.
 
 ## Guides you'll come back to
 
+- [How we write code in this course](docs/coding-rules.md): the habits every task expects, from "what does done mean?" to commit messages
 - [Resources](docs/resources.md): every book, tutorial and documentation page the course uses, by topic, with links
 - [Glossary](docs/glossary.md): TWA words, Rust words and working words, in plain language
 - [How to review a pull request](docs/code-review-guide.md)
