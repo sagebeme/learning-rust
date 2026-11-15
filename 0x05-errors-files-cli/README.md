@@ -34,7 +34,7 @@ TWA's types are taking shape. But real data arrives from outside: HR exports a r
 ## Panic or `Result`?
 
 - **`Result`** for anything that can go wrong in normal use: a missing file, a bad line in a CSV, a network that's down. The caller decides what to do.
-- **`panic!`** (and `unwrap`, `expect`) only for "this can't happen unless the program itself has a bug". In the TWA engine and server, a panic is an outage. That's why this repo's clippy settings warn about `unwrap` outside tests.
+- **`panic!`** (and `unwrap`, `expect`) only for "this can't happen unless the program itself has a bug". In the TWA engine and server, a panic is an outage. That's why this repo's clippy settings warn about `unwrap` outside tests. The [coding rules](../docs/coding-rules.md#while-you-write) sum it up: never hide an error.
 
 ## Tasks
 

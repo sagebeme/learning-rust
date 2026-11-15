@@ -46,6 +46,8 @@ cargo clippy -p hello-cargo -- -D warnings
 
 Clippy is a linter: it catches code that works but isn't idiomatic, and explains why. Treat its warnings as review comments.
 
+Read [How we write code in this course](../docs/coding-rules.md) before task 0. It's one page, and it's how every task in the course is meant to be written.
+
 ## Tasks
 
 ### 0. The welcome line (`t00_welcome.rs`)
